@@ -55,14 +55,15 @@
 
  pub fn prompt(text: &str) {
 
-	print!("{}\n--> ", text);
+	print!("{}\n--> ", text); //Print the prompt, new line, and "--> " to indicate that the user should type something.
 	io::stdout().flush()
-	    .expect("Error flushing stdout");
+	    .expect("Error flushing stdout from \"prompt\""); //Rust appears to buffer stdout by line. This insures the whole
+		                                                  //Previous line is printed before getting user input.
 
-	let mut input = String::new();
+	let mut input = String::new(); //Create a new string and assign it to input
 
 	io::stdin().read_line(&mut input)
-	    .expect("Error reading user input");
+	    .expect("Error reading user input");  //Read user input into input
 
-	println!("You typed: {}", input);
+	println!("You typed: {}", input); //Display what the user input was
 }
