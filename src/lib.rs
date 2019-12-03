@@ -53,7 +53,7 @@
 
  
 
- pub fn prompt(text: &str) {
+ pub fn prompt(text: &str, options: &[&str]) {
 
 	print!("{}\n--> ", text); //Print the prompt, new line, and "--> " to indicate that the user should type something.
 	io::stdout().flush()
@@ -65,5 +65,10 @@
 	io::stdin().read_line(&mut input)
 	    .expect("Error reading user input");  //Read user input into input
 
-	println!("You typed: {}", input); //Display what the user input was
+	println!("You typed: {}", input.to_uppercase()); //Display what the user input was
+
+	for option in options.iter() {
+		
+		println!("{}", option);
+	}
 }
