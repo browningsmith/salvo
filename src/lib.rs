@@ -53,7 +53,7 @@
 
  
 
- pub fn prompt(text: &str, options: &[&str]) {
+ pub fn prompt(text: &str, options: &[&str]) -> i32 {
 
 	print!("{}\n--> ", text); //Print the prompt, new line, and "--> " to indicate that the user should type something.
 	io::stdout().flush()
@@ -67,8 +67,22 @@
 
 	println!("You typed: {}", input.to_uppercase()); //Display what the user input was
 
-	for option in options.iter() {
+	//Declare result, init to -1, this will be the index of the option that was found in the Input
+	let mut result = -1;
+
+	//Declare n, init to -1, this will be the index of the option we are currently comparing
+	let mut n = -1;
+
+	for option in options.iter() { //For each option in the list of options
 		
-		println!("{}", option);
+		n = n+1; //Increment result
+
+		if input.to_uppercase().contains(option) { //If the user input contains the option
+		
+			result = n; //Set result to n
+			return result; //Return the result
+		}
 	}
+
+	return result; //Return the result, which is negative 1 at this point if no valid input was entered
 }
