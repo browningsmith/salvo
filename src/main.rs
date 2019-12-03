@@ -49,5 +49,5 @@ fn main() {
 
 	//Begin main game loop. Infinite loop, will not exit. Game can be ended in prompt method, if
 	//"end" is entered by the user.
-	salvo::prompt();
+	salvo::prompt("Please type something and hit enter.");
 }

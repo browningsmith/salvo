@@ -32,6 +32,11 @@
  * library file.
  **********************************************************************************************/
 
+ //Dependencies
+ use std::io;
+ use std::io::Write;
+
+
 /**********************************************************************************************
  * Function Name: prompt
  * 
@@ -46,7 +51,18 @@
  *              see if they are sure they want to exit.
  **********************************************************************************************/
 
- pub fn prompt() {
+ 
 
-	println!("Hello!");
+ pub fn prompt(text: &str) {
+
+	print!("{}\n--> ", text);
+	io::stdout().flush()
+	    .expect("Error flushing stdout");
+
+	let mut input = String::new();
+
+	io::stdin().read_line(&mut input)
+	    .expect("Error reading user input");
+
+	println!("You typed: {}", input);
 }
