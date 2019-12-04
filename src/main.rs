@@ -49,7 +49,7 @@ fn main() {
 
 	//Begin main game loop. Infinite loop, will not exit. Game can be ended in prompt method, if
 	//"end" is entered by the user.
-	let result = salvo::prompt("Please type yes or no.", &["YES", "NO"]);
+	let result = salvo::prompt("Please type yes, no, ormaybe.", &["YES", "NO", "MA"]);
 
 	if result == 0 {
 	
@@ -59,8 +59,11 @@ fn main() {
 	
 		println!("You entered no!");
 	}
-	else {
+	else if result == 2 {
 	
-		println!("You didn't enter anything valid!");
+		println!("You entered maybe!");
+	}
+	else {
+		println!("You didn't enter anything valid!");	
 	}
 }
