@@ -40,57 +40,71 @@
 /**********************************************************************************************
  * Function Name: prompt
  * 
- * Input: &str prompt, &[&str] options 
+ * Input: &str text, &[&str] options, &[i32] results
  * Output: i32 result
  *
- * Description: Handles input from the user. First argument is a string of text to prompt the user with.
- *              Second argument is a list of possible valid responses. (IMPORTANT: array of inputs 
- *              must be uppercase strings!) Function returns the index of the result that was
- *              found in the user input. Repeats the given prompt until valid input is given.
+ * Description: General method for handling user input. First argument is a string of text
+ *              that we wish to ask the user. After displaying this, the function calls get_input_arrow
+ *              to print the "--> " cursor and grab user input. The second argument is an array
+ *              of strings, which is a list of valid inputs that the function will look for within
+ *              the string that the user input. The third argument is an array of equal size, containing which
+ *              integer is to be returned if the corresponding string from the second argument
+ *              is found.
  *
- *              This method prints the prompt given as the first argument, then on the next line prints
- *              "--> ", to indicate to the user that they should type something.
+ *              If the user enters two or more valid inputs on the same line, the input is considered invalid.
  *
- *              If the user enters more than one possible valid input on the same line, The
- *              method returns the lowest index of of the matching options. For example: If
- *              options is ["YES", "NO"], and the user types "no yes", the method returns 0, not 1.
+ *              However, if you would like there to be more than one option that return the same result, place
+ *              the same Integer in the corresponding locations of the third argument for those options.
+ *              In this case the function will not consider it invalid if two different options that Return
+ *              the same result are entered on one line. Otherwise, have a unique integer for each option.
+ *
+ *              If user enters invalid input, it will restate the prompt and get more user input. Will
+ *              not return until valid input is entered
+ *
+ *              Behavior is undefined if the second and third arguments are not equally
+ *              sized arrays.
  **********************************************************************************************/
 
- 
+ pub fn prompt(text: &str, options: &[&str], results: &[i32]) -> i32 {
 
- /*pub fn prompt(text: &str, options: &[&str]) -> i32 {
+	let mut result = -1; //declare result. This will be the return value of the Function. -1 indicates invalid input
 
-	print!("{}\n--> ", text); //Print the prompt, new line, and "--> " to indicate that the user should type something.
-	io::stdout().flush()
-	    .expect("Error flushing stdout from \"prompt\""); //Rust appears to buffer stdout by line. This insures the whole
-		                                                  //Previous line is printed before getting user input.
+	while result == -1 { //As long as input is invalid
+	
+		println!("{}", text); //Print the prompt
 
-	let mut input = String::new(); //Create a new string and assign it to input
+		let input = get_input_arrow(); //Display arrow and get user input, put it into input
 
-	io::stdin().read_line(&mut input)
-	    .expect("Error reading user input");  //Read user input into input
+		let mut n = 0; //Initialize n as 0, this will be the index of the option we are comparing
 
-	println!("You typed: {}", input.to_uppercase()); //Display what the user input was
+		for option in options.iter() { //For each option in the options array
 
-	//Declare result, init to -1, this will be the index of the option that was found in the Input
-	let mut result = -1;
+			if input.to_uppercase().contains(&option.to_uppercase()) { //If the input string contains the option
 
-	//Declare n, init to -1, this will be the index of the option we are currently comparing
-	let mut n = -1;
+				//Check to see that no other results have been found yet
+				if result == -1 {
+					result = results[n]; //Set result to the proper result from results array
+				}
 
-	for option in options.iter() { //For each option in the list of options
-		
-		n = n+1; //Increment result
+				//Else, since a result was already found, check to see if it was a different result
+				else if result != results[n] {
+				
+					result = -1; //Reset result to -1, invalid input
+					break; //Break out of the for loop
+				}
+			}
 
-		if input.to_uppercase().contains(option) { //If the user input contains the option
-		
-			result = n; //Set result to n
-			return result; //Return the result
+			n = n + 1; //Increment n, and repeat for loop to check next option
 		}
-	}
 
-	return result; //Return the result, which is negative 1 at this point if no valid input was entered
-}*/
+		if result == -1 { //If result is -1 at this point, input was invalid
+
+			println!("Input is invalid\n"); //Let the user know the input is invalid
+		}
+	} //If input is -1 (invalid), this loop repeats
+
+	return result; //Return the result
+}
 
 /**********************************************************************************************
  * Function Name: get_input_arrow
@@ -114,6 +128,8 @@
 
 	io::stdin().read_line(&mut input)
 	    .expect("Error reading user input");  //Read user input into input
+
+	println!(""); //Print a new line
 
 	return input;
  }

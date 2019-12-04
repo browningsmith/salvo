@@ -47,7 +47,24 @@ use salvo;
 fn main() {
     println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
 
-	loop {
-		println!("You typed {}", salvo::get_input_arrow());
+
+	
+	let result = salvo::prompt("Please type in one, two, or three", &["1","one","2","two","3","three"], &[1,1,2,2,3,3]);
+
+	if result == 1 {
+	
+		println!("You typed in one!");
+	}
+	else if result == 2 {
+	
+		println!("You typed in two!");
+	}
+	else if result == 3 {
+	
+		println!("You typed in three!");
+	}
+	else {
+	
+		println!("You didn't enter anything valid!");
 	}
 }
