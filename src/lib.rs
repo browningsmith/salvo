@@ -58,7 +58,7 @@
 
  
 
- pub fn prompt(text: &str, options: &[&str]) -> i32 {
+ /*pub fn prompt(text: &str, options: &[&str]) -> i32 {
 
 	print!("{}\n--> ", text); //Print the prompt, new line, and "--> " to indicate that the user should type something.
 	io::stdout().flush()
@@ -90,4 +90,30 @@
 	}
 
 	return result; //Return the result, which is negative 1 at this point if no valid input was entered
-}
+}*/
+
+/**********************************************************************************************
+ * Function Name: get_input_arrow
+ * 
+ * Input: None 
+ * Output: String result
+ *
+ * Description: This method is what creates the "--> " prompt cursor that is seen in the game.
+ *              When called, it displays the "-- >", and allows the user to enter some text.
+ *              After the user hits the 'ENTER' key, the string that the user typed is returned
+ **********************************************************************************************/
+
+ pub fn get_input_arrow() -> String {
+ 
+	print!("--> "); //Display the "--> " prompt arrow
+	io::stdout().flush()
+	    .expect("Error flushing stdout from \"prompt\""); //Rust appears to buffer stdout by line. This insures the whole
+		                                                  //Previous line is printed before getting user input.
+
+	let mut input = String::new(); //Initialize a new String, assign it to input
+
+	io::stdin().read_line(&mut input)
+	    .expect("Error reading user input");  //Read user input into input
+
+	return input;
+ }

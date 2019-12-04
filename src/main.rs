@@ -47,23 +47,7 @@ use salvo;
 fn main() {
     println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
 
-	//Begin main game loop. Infinite loop, will not exit. Game can be ended in prompt method, if
-	//"end" is entered by the user.
-	let result = salvo::prompt("Please type yes, no, ormaybe.", &["YES", "NO", "MA"]);
-
-	if result == 0 {
-	
-		println!("You entered yes!");
-	}
-	else if result == 1 {
-	
-		println!("You entered no!");
-	}
-	else if result == 2 {
-	
-		println!("You entered maybe!");
-	}
-	else {
-		println!("You didn't enter anything valid!");	
+	loop {
+		println!("You typed {}", salvo::get_input_arrow());
 	}
 }
