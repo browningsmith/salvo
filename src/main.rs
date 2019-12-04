@@ -47,25 +47,28 @@ use salvo;
 fn main() {
     println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
 
-
+	//Infinite loop, begin game flow. Will continue to start new games until the user exits
 	loop {
-	let result = salvo::prompt("Please type in one, two, or three", &["1","one","2","two","3","three"], &[0,0,2,2,3,3]);
+	
+		//Prompt the user to select a game difficulty
+		let difficulty = salvo::prompt("Type 'easy', 'normal', or 'hard' to select difficulty of opponent\n\nFor instructions on how to play the game, type 'ins'.\n\nType 'end' at any time to end the simulation.\n",
+		                     &["eas","nor","har","ins"],&[1,2,3,4]);
 
-	if result == 0 {
-	
-		println!("You typed in one!");
-	}
-	else if result == 2 {
-	
-		println!("You typed in two!");
-	}
-	else if result == 3 {
-	
-		println!("You typed in three!");
-	}
-	else {
-	
-		println!("You didn't enter anything valid!");
-	}
+		if difficulty == 1 {
+		
+			println!("User wants an easy game");
+		}
+		else if difficulty == 2 {
+		
+			println!("User wants a normal game");
+		}
+		else if difficulty == 3 {
+		
+			println!("User wants a hard game");
+		}
+		else if difficulty == 4 {
+		
+			println!("User wants to see the instructions");
+		}
 	}
 }
