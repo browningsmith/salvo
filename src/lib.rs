@@ -35,6 +35,7 @@
  //Dependencies
  use std::io;
  use std::io::Write;
+ use std::process;
 
 
 /**********************************************************************************************
@@ -43,8 +44,8 @@
  * Input: &str text, &[&str] options, &[u32] results
  * Output: u32 result
  *
- * Description: General method for handling user input. First argument is a string of text
- *              that we wish to ask the user. After displaying this, the function calls get_input_arrow
+ * Description: General method for interpreting user input. First argument is a string of text
+ *              that we wish to ask the user. After displaying this, the function calls get_input_or_exit
  *              to print the "--> " cursor and grab user input. The second argument is an array
  *              of strings, which is a list of valid inputs that the function will look for within
  *              the string that the user input. The third argument is an array of equal size, containing which
@@ -70,10 +71,8 @@
 	let mut result: i32 = -1; //declare result. This will be the return value of the Function. -1 indicates invalid input
 
 	while result == -1 { //As long as input is invalid
-	
-		println!("{}", text); //Print the prompt
 
-		let input = get_input_arrow(); //Display arrow and get user input, put it into input
+		let input = get_input_or_exit(text); //prompt and get user input, put it into input
 
 		let mut n = 0; //Initialize n as 0, this will be the index of the option we are comparing
 
@@ -107,29 +106,69 @@
 }
 
 /**********************************************************************************************
- * Function Name: get_input_arrow
+ * Function Name: get_input_or_exit
  * 
- * Input: None 
+ * Input: &str text
  * Output: String result
  *
- * Description: This method is what creates the "--> " prompt cursor that is seen in the game.
- *              When called, it displays the "-- >", and allows the user to enter some text.
- *              After the user hits the 'ENTER' key, the string that the user typed is returned
+ * Description: This function handles prompting the user with given text, and providing an
+                opportunity to respond. It also checks to see if the user entered 'end', and
+				will ask the user to confirm if they want to exit the game, or otherwise repeat
+				the given prompt.
  **********************************************************************************************/
 
- pub fn get_input_arrow() -> String {
- 
-	print!("--> "); //Display the "--> " prompt arrow
-	io::stdout().flush()
-	    .expect("Error flushing stdout from \"prompt\""); //Rust appears to buffer stdout by line. This insures the whole
-		                                                  //Previous line is printed before getting user input.
+ pub fn get_input_or_exit(text: &str) -> String {
+
+	let mut prompting = true; //Declare prompting and set it to true, means we are still looking for input
 
 	let mut input = String::new(); //Initialize a new String, assign it to input
 
-	io::stdin().read_line(&mut input)
-	    .expect("Error reading user input");  //Read user input into input
+	while prompting {
+	
+		print!("{}\n--> ", text); //Print the prompt text and the "--> " prompt arrow
+		io::stdout().flush()
+		    .expect("Error flushing stdout from \"prompt\""); //Rust appears to buffer stdout by line. This insures the whole
+		                                                  //Previous line is printed before getting user input.
 
-	println!(""); //Print a new line
+		input = String::new(); //Reset input string
 
-	return input;
+		io::stdin().read_line(&mut input)
+			.expect("Error reading user input");  //Read user input into input
+
+		println!(""); //Print a new line
+
+		//If the user entered text that contains "end", confirm whether they wish to leave the game
+		if input.to_uppercase().contains("END") {
+
+			print!("Are you sure you want to exit the game? Type yes or no.\n--> "); //Ask the user if they really want to leave, and prompt again for input
+			io::stdout().flush()
+				.expect("Error flushing stdout from \"prompt\""); //Rust appears to buffer stdout by line. This insures the whole
+														          //Previous line is printed before getting user input.
+		
+			input = String::new(); //Reset input string
+
+			io::stdin().read_line(&mut input)
+			    .expect("Error reading user input");  //Read user input into input
+
+			println!(""); //Print a new line
+
+			//If the user entered text that contains "yes", exit the game
+			if input.to_uppercase().contains("YES") {
+			
+				println!("Naval Combat Simulation SALVO terminated. Have a nice day, Admiral!\n"); //Print a goodbye message
+
+				process::exit(0); //Exit the program
+			}
+			else {
+			
+				prompting = true; //Set prompting to true, so the prompt will repeat.
+			}
+		}
+		else {
+		
+			prompting = false; //Set prompting to false, since we have the input
+		}
+	}
+
+	return input; //Return user input
  }
