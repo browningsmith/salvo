@@ -40,23 +40,23 @@
 /**********************************************************************************************
  * Function Name: prompt
  * 
- * Input: &str text, &[&str] options, &[i32] results
- * Output: i32 result
+ * Input: &str text, &[&str] options, &[u32] results
+ * Output: u32 result
  *
  * Description: General method for handling user input. First argument is a string of text
  *              that we wish to ask the user. After displaying this, the function calls get_input_arrow
  *              to print the "--> " cursor and grab user input. The second argument is an array
  *              of strings, which is a list of valid inputs that the function will look for within
  *              the string that the user input. The third argument is an array of equal size, containing which
- *              integer is to be returned if the corresponding string from the second argument
- *              is found.
+ *              unsigned integer is to be returned if the corresponding string from the second argument
+ *              is found. These must be greater than or equal to 0!
  *
  *              If the user enters two or more valid inputs on the same line, the input is considered invalid.
  *
  *              However, if you would like there to be more than one option that return the same result, place
- *              the same Integer in the corresponding locations of the third argument for those options.
+ *              the same unsigned integer in the corresponding locations of the third argument for those options.
  *              In this case the function will not consider it invalid if two different options that Return
- *              the same result are entered on one line. Otherwise, have a unique integer for each option.
+ *              the same result are entered on one line. Otherwise, have a unique unsigned integer for each option.
  *
  *              If user enters invalid input, it will restate the prompt and get more user input. Will
  *              not return until valid input is entered
@@ -65,9 +65,9 @@
  *              sized arrays.
  **********************************************************************************************/
 
- pub fn prompt(text: &str, options: &[&str], results: &[i32]) -> i32 {
+ pub fn prompt(text: &str, options: &[&str], results: &[u32]) -> u32 {
 
-	let mut result = -1; //declare result. This will be the return value of the Function. -1 indicates invalid input
+	let mut result: i32 = -1; //declare result. This will be the return value of the Function. -1 indicates invalid input
 
 	while result == -1 { //As long as input is invalid
 	
@@ -83,11 +83,11 @@
 
 				//Check to see that no other results have been found yet
 				if result == -1 {
-					result = results[n]; //Set result to the proper result from results array
+					result = results[n] as i32; //Set result to the proper result from results array
 				}
 
 				//Else, since a result was already found, check to see if it was a different result
-				else if result != results[n] {
+				else if result != results[n] as i32 {
 				
 					result = -1; //Reset result to -1, invalid input
 					break; //Break out of the for loop
@@ -103,7 +103,7 @@
 		}
 	} //If input is -1 (invalid), this loop repeats
 
-	return result; //Return the result
+	return result as u32; //Return the result
 }
 
 /**********************************************************************************************

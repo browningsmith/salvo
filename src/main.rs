@@ -49,9 +49,9 @@ fn main() {
 
 
 	
-	let result = salvo::prompt("Please type in one, two, or three", &["1","one","2","two","3","three"], &[1,1,2,2,3,3]);
+	let result = salvo::prompt("Please type in one, two, or three", &["1","one","2","two","3","three"], &[0,0,2,2,3,3]);
 
-	if result == 1 {
+	if result == 0 {
 	
 		println!("You typed in one!");
 	}
