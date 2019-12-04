@@ -45,6 +45,7 @@
 use salvo;
 
 fn main() {
+
     println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
 
 	//Infinite loop, begin game flow. Will continue to start new games until the user exits
