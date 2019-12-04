@@ -40,15 +40,20 @@
 /**********************************************************************************************
  * Function Name: prompt
  * 
- * Input: String prompt, Array of acceptable string responses
- * Output: Integer result, index of the result that was found, from the list of acceptable results
+ * Input: &str prompt, &[&str] options 
+ * Output: i32 result
  *
- * Description: Handles input from the user. First argument is the string to prompt the user with.
- *              Second argument is a list of possible responses. Function returns the index of the
- *              result that was found. Prompts the user repeatedly until valid input is given.
+ * Description: Handles input from the user. First argument is a string of text to prompt the user with.
+ *              Second argument is a list of possible valid responses. (IMPORTANT: array of inputs 
+ *              must be uppercase strings!) Function returns the index of the result that was
+ *              found in the user input. Repeats the given prompt until valid input is given.
  *
- *              Also handles exiting the game. If the user types "end", prompts the user to
- *              see if they are sure they want to exit.
+ *              This method prints the prompt given as the first argument, then on the next line prints
+ *              "--> ", to indicate to the user that they should type something.
+ *
+ *              If the user enters more than one possible valid input on the same line, The
+ *              method returns the lowest index of of the matching options. For example: If
+ *              options is ["YES", "NO"], and the user types "no yes", the method returns 0, not 1.
  **********************************************************************************************/
 
  
