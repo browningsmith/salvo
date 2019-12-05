@@ -107,6 +107,7 @@
 			self.select_difficulty(); //Have the user select difficulty
 
 			println!("BEGIN GAME HERE");
+			pause_for_enter();
 		}
 	}
 
@@ -129,7 +130,7 @@
 		while !difficulty_selection_made {
 
 			//Prompt the user to select a game difficulty
-			let difficulty = prompt("Type 'easy', 'normal', or 'hard' to select difficulty of opponent\n\nFor instructions on how to play the game, type 'ins'.\n\nType 'end' at any time to end the simulation.\n",
+			let difficulty = prompt("Type 'easy', 'normal', or 'hard' to select difficulty of opponent\n\nFor instructions on how to play the game, type 'ins'.\n\nType 'end' at any time to end the simulation.",
 								&["eas","nor","har","ins"],&[1,2,3,4]);
 
 			if difficulty == 1 {
@@ -247,7 +248,7 @@ pub fn get_input_or_exit(text: &str) -> String {
 
 	while prompting {
 	
-		print!("{}\n--> ", text); //Print the prompt text and the "--> " prompt arrow
+		print!("{}\n\n--> ", text); //Print the prompt text and the "--> " prompt arrow
 		io::stdout().flush()
 			.expect("Error flushing stdout from \"prompt\""); //Rust appears to buffer stdout by line. This insures the whole
 															//Previous line is printed before getting user input.
@@ -274,14 +275,20 @@ pub fn get_input_or_exit(text: &str) -> String {
 
 			println!(""); //Print a new line
 
+			//If the user entered text that contains "no", repeat original prompt
+			if input.to_uppercase().contains("NO") {
+			
+				prompting = true; //Set prompting to true, so the prompt will repeat
+			}
+
 			//If the user entered text that contains "yes", exit the game
-			if input.to_uppercase().contains("YES") {
+			else if input.to_uppercase().contains("YES") {
 			
 				println!("Naval Combat Simulation SALVO terminated. Have a nice day, Admiral!\n"); //Print a goodbye message
 
 				process::exit(0); //Exit the program
 			}
-			else {
+			else { //If neither was entered, repeat original prompt
 			
 				prompting = true; //Set prompting to true, so the prompt will repeat.
 			}
@@ -293,4 +300,20 @@ pub fn get_input_or_exit(text: &str) -> String {
 	}
 
 	return input; //Return user input
+}
+
+/**********************************************************************************************
+* Function Name: pause_for_enter
+* 
+* Input: &str text
+* Output: None
+*
+* Description: This function is useful for pausing output and waiting for the user to hit 'ENTER'
+*              It calls the get_input_or_exit funtion like prompt does, so user can still exit The
+*              game at this point.
+**********************************************************************************************/
+
+pub fn pause_for_enter() {
+
+	get_input_or_exit("Press 'ENTER' to continue");
 }
