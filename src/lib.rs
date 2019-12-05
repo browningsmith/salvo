@@ -37,6 +37,10 @@
  use std::io::Write;
  use std::process;
 
+ //Global constants
+ const BOARD_HEIGHT: u32 = 10;
+ const BOARD_WIDTH: u32 = 10;
+
  /***********************************************************************************************
   * Enum Name: Difficulty
   *
@@ -50,6 +54,20 @@
 	Easy,
 	Normal,
 	Hard,
+ }
+
+ /***********************************************************************************************
+  * Struct Name: Salvo
+  *
+  * Attributes: Difficulty ai_difficulty
+  *
+  * Description: Instance of a game of Salvo. Contains attributes of the state of the game, and
+  *              several methods that control game flow and logic, as well as user interface.
+  ***********************************************************************************************/
+
+ pub struct GameBoard {
+ 
+	board: Vec<Vec<char>>,
  }
 
  /***********************************************************************************************
@@ -106,7 +124,13 @@
 	
 			self.select_difficulty(); //Have the user select difficulty for new game
 
-			println!("BEGIN GAME HERE");
+			println!("BEGIN {} GAME HERE", match self.ai_difficulty {
+			
+											Difficulty::Easy => "EASY",
+											Difficulty::Normal => "NORMAL",
+											Difficulty::Hard => "HARD",
+
+			                               });
 			pause_for_enter();
 		}
 	}
