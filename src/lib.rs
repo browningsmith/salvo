@@ -104,7 +104,7 @@
 		//Infinite loop, begin game flow. Will continue to start new games until the user exits
 		loop {
 	
-			self.select_difficulty(); //Have the user select difficulty
+			self.select_difficulty(); //Have the user select difficulty for new game
 
 			println!("BEGIN GAME HERE");
 			pause_for_enter();
@@ -112,54 +112,71 @@
 	}
 
 	/**********************************************************************************************
-	 * Function Name: run_game
+	 * Function Name: select_difficulty
 	 * 
 	 * Input: &mut self
 	 * Output: None
 	 *
 	 * Changes: self.ai_difficulty
 	 *
-	 * Description: Gives brief description on how to interface with the game.
-	 *              Handles the user selecting game difficulty. Also displays instructions if the User
-	 *              wants to see them. 
+	 * Description: Handles asking the user to choose an AI difficulty. Since it is also the first method
+	 *              executed by run_game(), it displays a brief description of how to interface with the
+	 *              game, and will display instructions if the user asks.
 	 **********************************************************************************************/
 	 pub fn select_difficulty(&mut self) {
 	 
-		let mut difficulty_selection_made = false; //Initialize difficulty_selection_made. As long as this is false, continue to prompt user for difficulty setting
+		let mut selection_made = false; //selection_made is false to start. Will keep asking the user for difficulty
+		                                //until this is true
 
-		while !difficulty_selection_made {
+		while selection_made == false {
 
-			//Prompt the user to select a game difficulty
-			let difficulty = prompt("Type 'easy', 'normal', or 'hard' to select difficulty of opponent\n\nFor instructions on how to play the game, type 'ins'.\n\nType 'end' at any time to end the simulation.",
-								&["eas","nor","har","ins"],&[1,2,3,4]);
+			let difficulty_selection = prompt("Select difficulty of opponent by typing 'easy', 'normal', or 'hard'\n\nFor instructions on how to play the game, type 'instructions' or 'ins'\n\nType 'end' at any time to exit the program",
+			                                  &["eas", "nor", "har", "ins"],&[1,2,3,4]);
 
-			if difficulty == 1 {
-		
-				println!("You have selected an easy opponent!\n"); //Tell the user Easy was selected
-				self.ai_difficulty = Difficulty::Easy; //set difficulty to easy
-				difficulty_selection_made = true;
-				prompt_yn("Do you wish to continue? Type 'yes' or 'no'.");
+			if difficulty_selection == 1 { //User picked easy
+			
+				//Tell the user they have selected "easy", and prompt for a confirmation
+				if prompt_yn("You have selected an easy opponent.\n\nWould you like to continue? Type 'yes' or 'no'.") { //If user says yes
+				
+					selection_made = true; //Set selection made to true
+					self.ai_difficulty = Difficulty::Easy; //Set game difficulty to easy
+				}
+				else { //If user says no
+				
+					selection_made = false; //Set selection made to false, so the user will be prompted again.
+				}
 			}
-			else if difficulty == 2 {
-		
-				println!("You have selected a normal opponent!\n"); //tell the user Normal was selected
-				self.ai_difficulty = Difficulty::Normal; //set difficulty to normal
-				difficulty_selection_made = true;
-				prompt_yn("Do you wish to continue? Type 'yes' or 'no'.");
+			else if difficulty_selection == 2 { //User picked normal
+			
+				//Tell the user they have selected "normal", and prompt for a confirmation
+				if prompt_yn("You have selected a normal opponent.\n\nWould you like to continue? Type 'yes' or 'no'.") { //If user says yes
+				
+					selection_made = true; //Set selection made to true
+					self.ai_difficulty = Difficulty::Normal; //Set game difficulty to normal
+				}
+				else { //If user says no
+				
+					selection_made = false; //Set selection made to false, so the user will be prompted again.
+				}
 			}
-			else if difficulty == 3 {
-		
-				println!("You have selected a hard opponent!\n"); //tell the user Hard was selected
-				self.ai_difficulty = Difficulty::Hard; //set difficulty to hard
-				difficulty_selection_made = true;
-				prompt_yn("Do you wish to continue? Type 'yes' or 'no'.");
+			else if difficulty_selection == 3 { //User picked hard
+			
+				//Tell the user they have selected "hard", and prompt for a confirmation
+				if prompt_yn("You have selected a hard opponent.\n\nWould you like to continue? Type 'yes' or 'no'.") { //If user says yes
+				
+					selection_made = true; //Set selection made to true
+					self.ai_difficulty = Difficulty::Hard; //Set game difficulty to hard
+				}
+				else { //If user says no
+				
+					selection_made = false; //Set selection made to false, so the user will be prompted again.
+				}
 			}
-			else if difficulty == 4 { //User has selected instructions
-		
+			else { //User wants to see instructions
+			
+				selection_made = false; //Set selection_made to false, since the user did not pick anything
 				display_instructions(); //Display instructions
-				pause_for_enter();
-
-				// difficulty_selecttion_made is still false, so user will be prompted again
+				pause_for_enter(); //Pause for the user to read and hit enter
 			}
 		}
 	 }
