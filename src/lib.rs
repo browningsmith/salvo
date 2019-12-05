@@ -138,18 +138,21 @@
 				println!("You have selected an easy opponent!\n"); //Tell the user Easy was selected
 				self.ai_difficulty = Difficulty::Easy; //set difficulty to easy
 				difficulty_selection_made = true;
+				prompt_yn("Do you wish to continue? Type 'yes' or 'no'.");
 			}
 			else if difficulty == 2 {
 		
 				println!("You have selected a normal opponent!\n"); //tell the user Normal was selected
 				self.ai_difficulty = Difficulty::Normal; //set difficulty to normal
 				difficulty_selection_made = true;
+				prompt_yn("Do you wish to continue? Type 'yes' or 'no'.");
 			}
 			else if difficulty == 3 {
 		
 				println!("You have selected a hard opponent!\n"); //tell the user Hard was selected
 				self.ai_difficulty = Difficulty::Hard; //set difficulty to hard
 				difficulty_selection_made = true;
+				prompt_yn("Do you wish to continue? Type 'yes' or 'no'.");
 			}
 			else if difficulty == 4 { //User has selected instructions
 		
@@ -227,6 +230,29 @@ pub fn prompt(text: &str, options: &[&str], results: &[u32]) -> u32 {
 	} //If input is -1 (invalid), this loop repeats
 
 	return result as u32; //Return the result
+}
+
+/**********************************************************************************************
+* Function Name: prompt_yn
+* 
+* Input: &str text
+* Output: bool
+*
+* Description: This is similar to prompt, however it only looks to see if the user has entered
+*              yes or no. If the user enters invalid input, it will restate the prompt and get more
+*              user input. Will not return until valid input is entered.
+**********************************************************************************************/
+
+pub fn prompt_yn(text: &str) -> bool {
+
+	let result = prompt(text, &["YES","NO"], &[1,2]); //Set result to 1 or 2, based on whether yes or no is entered
+
+	return match result {
+	
+		1 => true,  //Return true if yes
+		2 => false, //Return false if no
+		_ => false, //To make compiler happy, this calling of promt can only return 1 or 2
+	}
 }
 
 /**********************************************************************************************
