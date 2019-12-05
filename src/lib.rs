@@ -153,7 +153,8 @@
 			}
 			else if difficulty == 4 { //User has selected instructions
 		
-				println!("User wants to see the instructions"); //Display instructions
+				display_instructions(); //Display instructions
+				pause_for_enter();
 
 				// difficulty_selecttion_made is still false, so user will be prompted again
 			}
@@ -316,4 +317,39 @@ pub fn get_input_or_exit(text: &str) -> String {
 pub fn pause_for_enter() {
 
 	get_input_or_exit("Press 'ENTER' to continue");
+}
+
+/**********************************************************************************************
+* Function Name: display_instructions
+* 
+* Input: None
+* Output: None
+*
+* Description: Displays the instructions of Salvo
+**********************************************************************************************/
+
+pub fn display_instructions() {
+
+	println!("Salvo is a classical naval combat simulation.");
+	println!("Each player is allocated their own 10x10 grid of open sea, where they can place their ships.");
+	println!("There are 5 classes of ships, each taking up a certain number of spaces on the game board.");
+	println!("Both players must deploy all 5 ships before the simulation can begin.");
+	println!("");
+	println!("     Patrol Boat       [P]      Length: 2 Spaces");
+	println!("     Submarine         [S]      Length: 3 Spaces");
+	println!("     Destroyer         [D]      Length: 3 Spaces");
+	println!("     Battleship        [B]      Length: 4 Spaces");
+	println!("     Aircraft Carrier  [C]      Length: 5 Spaces");
+	println!("");
+	println!("The first player will select a spot on the enemy's board to attack.");
+	println!("The player cannot see the placement of the enemy's ships on the enemy's grid. He or she must try to guess where the ships are.");
+	println!("The player selects a location to attack by typing in the coordinates, denoted by the letters and numbers on the edges of the game board.");
+	println!("Letter denotes row, and number denotes column.");
+	println!("If part of the enemy ship takes up the attacked square, it is a HIT, and an 'X' will be placed there.");
+	println!("If the attack hits a square that does not contain a ship, it is a MISS, and a '~' symbol will be placed there.");
+	println!("If the player does get a HIT, they get to make another attack. Player continues to attack until they get a MISS.");
+	println!("Once the player missed, it is the next player's turn to attack.");
+	println!("A ship is considered SUNK if all of it's spaces are hit by the enemy");
+	println!("The game ends when all of one of the player's ships are sunk. The player with some ships still afloat is declared the winner!");
+	println!("");
 }
