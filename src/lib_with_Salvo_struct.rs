@@ -171,3 +171,8 @@
 
 	return input; //Return user input
  }
+
+ pub fn clear_screen() {
+ 
+	println!("Attempted to clear screen here.");
+ }

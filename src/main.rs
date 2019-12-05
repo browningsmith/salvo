@@ -27,8 +27,8 @@
  *
  * Example Execution (Windows): .\salvo.exe
  * 
- * This is the main.rs file, it contains the main function, which handles top-level game flow.
- * The bulk of game logic is located in the lib.rs file.
+ * This is the main.rs file, and it's only purpose is to call run_game() from lib.rs. lib.rs contains
+ * the bulk of the game logic and terminal interfacing.
  **********************************************************************************************/
 
 /**********************************************************************************************
@@ -37,10 +37,7 @@
  * Input: None
  * Output: None
  *
- * Description: Handles top-level game flow
- *              Upon startup, welcomes the user.
- *              Asks the user if they would prefer a one-player battle or a two-player battle.
- *              After the battle has concluded, asks if the user would like to play again.
+ * Description: Initializes the battleship game.
  **********************************************************************************************/
 use salvo;
 
