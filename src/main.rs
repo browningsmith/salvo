@@ -3,7 +3,7 @@
  *
  *                      Author: Browning Keith Smith <browningsmith@email.arizona.edu>
  *                        Date: December 2, 2019
- *                Last Updated: December 2, 2019
+ *                Last Updated: December 4, 2019
  *
  *                  Assignment: Project: Learn a New (to You!) Programming Language
  *                      Part 3: Custom Program, Salvo (Battleship-like game)
@@ -37,11 +37,11 @@
  * Input: None
  * Output: None
  *
- * Description: Initializes the battleship game.
+ * Description: Initializes the game.
  **********************************************************************************************/
 use salvo;
 
 fn main() {
 
-    salvo::Salvo::new_game().run_game();
+    salvo::Salvo::new_game().run_game(); //Create a new Salvo game instance and then run it.
 }

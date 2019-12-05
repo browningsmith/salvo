@@ -3,7 +3,7 @@
  *
  *                      Author: Browning Keith Smith <browningsmith@email.arizona.edu>
  *                        Date: December 2, 2019
- *                Last Updated: December 2, 2019
+ *                Last Updated: December 4, 2019
  *
  *                  Assignment: Project: Learn a New (to You!) Programming Language
  *                      Part 3: Custom Program, Salvo (Battleship-like game)
@@ -105,6 +105,8 @@
 		loop {
 	
 			self.select_difficulty(); //Have the user select difficulty
+
+			println!("BEGIN GAME HERE");
 		}
 	}
 
@@ -148,9 +150,11 @@
 				self.ai_difficulty = Difficulty::Hard; //set difficulty to hard
 				difficulty_selection_made = true;
 			}
-			else if difficulty == 4 {
+			else if difficulty == 4 { //User has selected instructions
 		
-				println!("User wants to see the instructions");
+				println!("User wants to see the instructions"); //Display instructions
+
+				// difficulty_selecttion_made is still false, so user will be prompted again
 			}
 		}
 	 }
