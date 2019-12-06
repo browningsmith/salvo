@@ -45,6 +45,10 @@ fn main() {
 
     //salvo::Salvo::new_game().run_game(); //Create a new Salvo game instance and then run it.
 
-	salvo::GameBoard::new_board_empty().print_board();
+	let mut board = salvo::GameBoard::new_board_empty();
+
+	board.write_space(5,5,'A');
+
+	board.print_board();
 	
 }

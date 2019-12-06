@@ -131,7 +131,23 @@
 
 		println!(""); //Print a new line to complete the board
 	 }
+
+	 /**********************************************************************************************
+	 * Function Name: write_space
+	 * 
+	 * Input: &self, usize row, usize col, char c
+	 * Output: None
+	 *
+	 * Description: Changes the element at row and col of board to c
+	 **********************************************************************************************/
+
+	 pub fn write_space(&mut self, row: usize, col: usize, c: char) {
+	 
+		self.grid[row][col] = c;
+	 }
  }
+
+ 
 
  /***********************************************************************************************
   * Struct Name: Player
