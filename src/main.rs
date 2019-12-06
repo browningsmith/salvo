@@ -43,5 +43,8 @@ use salvo;
 
 fn main() {
 
-    salvo::Salvo::new_game().run_game(); //Create a new Salvo game instance and then run it.
+    //salvo::Salvo::new_game().run_game(); //Create a new Salvo game instance and then run it.
+	loop {
+	salvo::get_coordinates("Type in some coordinates");
+	}
 }

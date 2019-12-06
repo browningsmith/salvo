@@ -399,45 +399,201 @@ pub fn pause_for_enter() {
 * Description: method that asks for coordinates
 **********************************************************************************************/
 
-/*pub fn get_coordinates(text: &str) -> (u32, u32) {
+pub fn get_coordinates(text: &str) {
 
 	let mut row: i32 = 0; //declare row. This will be part of the the return value of the function. 0 indicates invalid input
 	let mut col: i32 = 0; //declare column. This will be part of the return value of the function. 0 indicates invalid input
 
-	while result == -1 { //As long as input is invalid
+	while (row == 0) || (col == 0) { //As long as input is invalid
 
-		let input = get_input_or_exit(text); //prompt and get user input, capitalize it, and assign it to input
+		//reset row and col to 0, invalid inputs
+		row = 0;
+		col = 0;
 
+		let input = get_input_or_exit(text).to_uppercase(); //prompt and get user input, capitalize it, and assign it to input variable
+
+		//First, attempt to parse a column number
+
+		//Start by searching for the name of a number
+		let mut col_option = 1; //Let col_option be 1, this is the column option we are comparing
+		let mut col_name_found = false; //Let col_name_found be false. This flag says we have detected a name rather than numeral
+
+		for col_name in ["ON","TWO","THR","FOU","FIV","SIX","SEV","EIGHT","NIN","TEN"].iter() {  //Iterate over strings of what could be the names of numbers 1 through 10
 		
+			if input.contains(col_name) { //If input string contains the numeral name
 
-		for option in options.iter() { //For each option in the options array
-
-			if input.to_uppercase().contains(&option.to_uppercase()) { //If the input string contains the option
-
-				//Check to see that no other results have been found yet
-				if result == -1 {
-					result = results[n] as i32; //Set result to the proper result from results array
+				col_name_found = true; //Set col_name_found to true
+				println!("The word {} was discovered!", col_name);
+			
+				//Check to see that no other rows have been found
+				if col == 0 {
+				
+					println!("{} was the first word discovered!", col_name);
+					col = col_option; //Set col to the col_option we just compared
 				}
 
-				//Else, since a result was already found, check to see if it was a different result
-				else if result != results[n] as i32 {
+				//Else, since a row was already found, check to see if it was a different row
+				else if col != col_option {
 				
-					result = -1; //Reset result to -1, invalid input
-					break; //Break out of the for loop
+					println!("But {} was already discovered!", col);
+					col = 0; //Reset col to invalid input
+					break; //break out of the for loop
 				}
 			}
 
-			n = n + 1; //Increment n, and repeat for loop to check next option
+			col_option = col_option + 1; //Increment col_option
 		}
 
-		if result == -1 { //If result is -1 at this point, input was invalid
+		//Next, search for numerals
+		
+		//Check for 1
+		if input.contains("1") {
+		
+			println!("The digit 1 was discovered! Check for 10");
+
+			//Check to see if it is actually 10
+			if input.contains("10") {
+
+				println!("The digit 10 was discovered!");
+			
+				//Check to see that no other rows have been found
+				if col == 0 {
+				
+					println!("10 was the first number discovered!");
+					col = 10; //set col to 10 if no other rows were found
+				}
+
+				//Else, since a row was already found, check to see if it was a different row
+				else if col != 10 {
+				
+					println!("But {} was already discovered!", col);
+					col = 0; //Reset col to invalid input if a different row was already found
+				}
+			}
+			else { //Else, input just contains 1
+
+				println!("It is indeed just 1!");
+			
+				//Check to see that no other rows have been found
+				if col == 0 {
+				
+					println!("1 was the first number discovered!");
+					col = 1; //set col to 10 if no other rows were found
+				}
+
+				//Else, since a row was already found, check to see if it was a different row
+				else if col != 1 {
+				
+					println!("But {} was already discovered!", col);
+					col = 0; //Reset col to invalid input if a different row was already found
+				}
+			}
+		}
+
+		//Check for 2 through 9
+		col_option = 2; //Set col_option to 2
+
+		for col_name in ["2","3","4","5","6","7","8","9"].iter() {
+		
+			if input.contains(col_name) { //If input string contains the numeral name
+
+				println!("The digit {} was discovered!", col_name);
+			
+				//Check to see that no other rows have been found
+				if col == 0 {
+				
+					println!("{} was the first column discovered!", col_name);
+					col = col_option; //Set col to the col_option we just compared
+				}
+
+				//Else, since a row was already found, check to see if it was a different row
+				else if col != col_option {
+				
+					println!("But {} was already discovered!", col);
+					col = 0; //Reset col to invalid input
+					break; //break out of the for loop
+				}
+			}
+
+			col_option = col_option + 1; //Increment col_option
+		}
+
+		//Second, attempt to parse a row Letter
+
+		//A B C D E F G H I J
+		//one two three four five six seven eight nine ten
+		//numeral names contain: E F I G H, so check that these exist with spaces on the end
+		//E with a space on the end actually needs to be ignored, sice it is the only one of those letters that any number ends with
+
+		//Check if a numeral name was found, so we know to be careful about E F G H and I, and make sure they have spaces
+		if col_name_found {
+
+			let mut row_option = 1; //Let row_option be 1, this is the row option we are comparing
+		
+			for row_name in ["A","B","C","D","E ","F ","G ","H ", "I ", "J"].iter() {
+		
+				if input.contains(row_name) { //If input string contains one of the above letters, some with spaces after them
+
+					println!("The letter {} was discovered!", row_name);
+			
+					//Check to see that no other rows have been found, or that 5 was found, since "E " may be read at the end of a number
+					if (row == 0) || (row == 5) {
+				
+						println!("{} was the first row discovered!", row_name);
+						row = row_option; //Set row to the row_option we just compared
+					}
+
+					//Else, since a row was already found:
+					//If the row was different, and this is not 5 (E)
+					else if (row != row_option) && (row_option != 5) {
+				
+						println!("But {} was already discovered!", row);
+						row = 0; //Reset row to invalid input
+						break; //break out of the for loop
+					}
+				}
+
+				row_option = row_option + 1; //Increment row_option
+			}
+		}
+		else { //Column name not found, so we need not be careful about letters
+
+			let mut row_option = 1; //Let row_option be 1, this is the row option we are comparing
+		
+			for row_name in ["A","B","C","D","E","F","G","H","I","J"].iter() {
+		
+				if input.contains(row_name) { //If input string contains the numeral name
+
+					println!("The letter {} was discovered!", row_name);
+			
+					//Check to see that no other rows have been found
+					if row == 0 {
+				
+						println!("{} was the first row discovered!", row_name);
+						row = row_option; //Set row to the row_option we just compared
+					}
+
+					//Else, since a row was already found, check to see if it was a different row, other than "E", because "E " may have been read off the end of a number
+					else if row != row_option {
+				
+						println!("But {} was already discovered!", row);
+						row = 0; //Reset row to invalid input
+						break; //break out of the for loop
+					}
+				}
+
+				row_option = row_option + 1; //Increment row_option
+			}
+		}
+
+		if (row == 0) || (col == 0) { //If result is -1 at this point, input was invalid
 
 			println!("Input is invalid\n"); //Let the user know the input is invalid
 		}
-	} //If input is -1 (invalid), this loop repeats
+	} //If input was invalid this loop repeats
 
-	return result as u32; //Return the result
-}*/
+	println!("Coordinates interpreted: {} {}", row, col);
+}
 
 /**********************************************************************************************
 * Function Name: display_instructions
