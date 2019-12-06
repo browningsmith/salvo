@@ -3,7 +3,7 @@
  *
  *                      Author: Browning Keith Smith <browningsmith@email.arizona.edu>
  *                        Date: December 2, 2019
- *                Last Updated: December 4, 2019
+ *                Last Updated: December 6, 2019
  *
  *                  Assignment: Project: Learn a New (to You!) Programming Language
  *                      Part 3: Custom Program, Salvo (Battleship-like game)
@@ -111,7 +111,7 @@
 
 	 pub fn print_board(&self) {
 	 
-		println!("     1   2   3   4   5   6   7   8   9   10 "); //Print column numbers
+		println!("      1   2   3   4   5   6   7   8   9   10 "); //Print column numbers
 		println!("  --|---|---|---|---|---|---|---|---|---|---|"); //Print top border
 
 		for row in 0..self.grid.len() { //For each row in the grid
@@ -158,6 +158,30 @@
 	 pub fn get_space(&self, row: usize, col: usize) -> char {
 	 
 		self.grid[row][col]
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: clear_symbol
+	 * 
+	 * Input: &self, char c
+	 * Output: None
+	 *
+	 * Description: searches the board and clears it of all instances of c
+	 **********************************************************************************************/
+
+	 pub fn clear_symbol(&mut self, c: char) {
+	 
+		for row in 0..self.grid.len() { //For each row in the grid
+
+			for col in 0..self.grid[row].len() { //For each column of the row
+			
+				//If this space is equal to c
+				if self.grid[row][col] == c {
+				
+					self.grid[row][col] = ' '; //Replace this location with a space
+				}
+			}
+		}
 	 }
  }
 

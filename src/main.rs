@@ -3,7 +3,7 @@
  *
  *                      Author: Browning Keith Smith <browningsmith@email.arizona.edu>
  *                        Date: December 2, 2019
- *                Last Updated: December 4, 2019
+ *                Last Updated: December 6, 2019
  *
  *                  Assignment: Project: Learn a New (to You!) Programming Language
  *                      Part 3: Custom Program, Salvo (Battleship-like game)
@@ -47,13 +47,31 @@ fn main() {
 
 	let mut board = salvo::GameBoard::new_board_empty();
 
-	println!("Space at {} {} is {}", 5, 5, board.get_space(5,5));
+	board.print_board();
+
+	println!("Adding A's");
+
+	board.write_space(1,1,'A');
+	board.write_space(2,7,'A');
+	board.write_space(0,4,'A');
+	board.write_space(2,9,'A');
+	board.write_space(5,5,'A');
 
 	board.print_board();
 
-	board.write_space(5,5,'A');
+	println!("Adding B's");
 
-	println!("Space at {} {} is {}", 5, 5, board.get_space(5,5));
+	board.write_space(7,1,'B');
+	board.write_space(9,7,'B');
+	board.write_space(8,4,'B');
+	board.write_space(0,9,'B');
+	board.write_space(3,5,'B');
+
+	board.print_board();
+
+	println!("Removing A's");
+
+	board.clear_symbol('A');
 
 	board.print_board();
 	
