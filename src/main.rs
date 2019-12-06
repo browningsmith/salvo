@@ -47,7 +47,13 @@ fn main() {
 
 	let mut board = salvo::GameBoard::new_board_empty();
 
+	println!("Space at {} {} is {}", 5, 5, board.get_space(5,5));
+
+	board.print_board();
+
 	board.write_space(5,5,'A');
+
+	println!("Space at {} {} is {}", 5, 5, board.get_space(5,5));
 
 	board.print_board();
 	

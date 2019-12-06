@@ -88,7 +88,7 @@
 
 		for row in 0..BOARD_HEIGHT { //For each row from 0 to BOARD_HEIGHT-1
 		
-			let mut new_row: Vec<char> = vec!['K'; BOARD_WIDTH as usize];  //Create a new vector of characters, length BOARD_WIDTH, filled with spaces
+			let mut new_row: Vec<char> = vec![' '; BOARD_WIDTH as usize];  //Create a new vector of characters, length BOARD_WIDTH, filled with spaces
 
 			new_grid.push(new_row); //Push row on to grid
 		}
@@ -112,11 +112,11 @@
 	 pub fn print_board(&self) {
 	 
 		println!("     1   2   3   4   5   6   7   8   9   10 "); //Print column numbers
-		println!("   |---|---|---|---|---|---|---|---|---|---|"); //Print top border
+		println!("  --|---|---|---|---|---|---|---|---|---|---|"); //Print top border
 
 		for row in 0..self.grid.len() { //For each row in the grid
 		
-			print!("{}  |", (row as u8 + 65) as char); //Print the letter of the row (65 is ascii for capital A), two spaces and a vertical divider
+			print!(" {}  |", (row as u8 + 65) as char); //Print a space, the letter of the row (65 is ascii for capital A), a space and a vertical divider
 
 			for col in 0..self.grid[row].len() { //For each column of the row
 			
@@ -126,7 +126,7 @@
 
 			//Print a new line
 			println!("");
-			println!("   |---|---|---|---|---|---|---|---|---|---|"); //Print a horizontal divider
+			println!("  --|---|---|---|---|---|---|---|---|---|---|"); //Print a horizontal divider
 		}
 
 		println!(""); //Print a new line to complete the board
@@ -144,6 +144,20 @@
 	 pub fn write_space(&mut self, row: usize, col: usize, c: char) {
 	 
 		self.grid[row][col] = c;
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: get_space
+	 * 
+	 * Input: &self, usize row, usize col
+	 * Output: char
+	 *
+	 * Description: Changes the element at row and col of board to c
+	 **********************************************************************************************/
+
+	 pub fn get_space(&self, row: usize, col: usize) -> char {
+	 
+		self.grid[row][col]
 	 }
  }
 
