@@ -240,13 +240,13 @@ pub fn prompt(text: &str, options: &[&str], results: &[u32]) -> u32 {
 
 	while result == -1 { //As long as input is invalid
 
-		let input = get_input_or_exit(text); //prompt and get user input, put it into input
+		let input = get_input_or_exit(text).to_uppercase(); //prompt and get user input, make it uppercase, and put it into variable input
 
 		let mut n = 0; //Initialize n as 0, this will be the index of the option we are comparing
 
 		for option in options.iter() { //For each option in the options array
 
-			if input.to_uppercase().contains(&option.to_uppercase()) { //If the input string contains the option
+			if input.contains(&option.to_uppercase()) { //If the input string contains the option
 
 				//Check to see that no other results have been found yet
 				if result == -1 {
@@ -328,8 +328,10 @@ pub fn get_input_or_exit(text: &str) -> String {
 
 		println!(""); //Print a new line
 
+		let input_caps = input.to_uppercase(); //Create copy of input that is all caps, for comparison
+
 		//If the user entered text that contains "end", confirm whether they wish to leave the game
-		if input.to_uppercase().contains("END") {
+		if input_caps.contains("END") {
 
 			print!("Are you sure you want to exit the game? Type yes or no.\n\n--> "); //Ask the user if they really want to leave, and prompt again for input
 			io::stdout().flush()
@@ -343,14 +345,16 @@ pub fn get_input_or_exit(text: &str) -> String {
 
 			println!(""); //Print a new line
 
+			let input_caps = input.to_uppercase(); //Create copy of input that is all caps, for comparison
+
 			//If the user entered text that contains "no", repeat original prompt
-			if input.to_uppercase().contains("NO") {
+			if input_caps.contains("NO") {
 			
 				prompting = true; //Set prompting to true, so the prompt will repeat
 			}
 
 			//If the user entered text that contains "yes", exit the game
-			else if input.to_uppercase().contains("YES") {
+			else if input_caps.contains("YES") {
 			
 				println!("Naval Combat Simulation SALVO terminated. Have a nice day, Admiral!\n"); //Print a goodbye message
 
