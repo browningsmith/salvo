@@ -423,19 +423,16 @@ pub fn get_coordinates(text: &str) {
 			if input.contains(col_name) { //If input string contains the numeral name
 
 				col_name_found = true; //Set col_name_found to true
-				println!("The word {} was discovered!", col_name);
 			
-				//Check to see that no other rows have been found
+				//Check to see that no other columns have been found
 				if col == 0 {
 				
-					println!("{} was the first word discovered!", col_name);
 					col = col_option; //Set col to the col_option we just compared
 				}
 
-				//Else, since a row was already found, check to see if it was a different row
+				//Else, since a column was already found, check to see if it was a different column
 				else if col != col_option {
 				
-					println!("But {} was already discovered!", col);
 					col = 0; //Reset col to invalid input
 					break; //break out of the for loop
 				}
@@ -448,43 +445,33 @@ pub fn get_coordinates(text: &str) {
 		
 		//Check for 1
 		if input.contains("1") {
-		
-			println!("The digit 1 was discovered! Check for 10");
 
 			//Check to see if it is actually 10
 			if input.contains("10") {
-
-				println!("The digit 10 was discovered!");
 			
 				//Check to see that no other rows have been found
 				if col == 0 {
 				
-					println!("10 was the first number discovered!");
 					col = 10; //set col to 10 if no other rows were found
 				}
 
 				//Else, since a row was already found, check to see if it was a different row
 				else if col != 10 {
 				
-					println!("But {} was already discovered!", col);
 					col = 0; //Reset col to invalid input if a different row was already found
 				}
 			}
 			else { //Else, input just contains 1
-
-				println!("It is indeed just 1!");
 			
 				//Check to see that no other rows have been found
 				if col == 0 {
 				
-					println!("1 was the first number discovered!");
 					col = 1; //set col to 10 if no other rows were found
 				}
 
 				//Else, since a row was already found, check to see if it was a different row
 				else if col != 1 {
 				
-					println!("But {} was already discovered!", col);
 					col = 0; //Reset col to invalid input if a different row was already found
 				}
 			}
@@ -496,20 +483,16 @@ pub fn get_coordinates(text: &str) {
 		for col_name in ["2","3","4","5","6","7","8","9"].iter() {
 		
 			if input.contains(col_name) { //If input string contains the numeral name
-
-				println!("The digit {} was discovered!", col_name);
 			
 				//Check to see that no other rows have been found
 				if col == 0 {
 				
-					println!("{} was the first column discovered!", col_name);
 					col = col_option; //Set col to the col_option we just compared
 				}
 
 				//Else, since a row was already found, check to see if it was a different row
 				else if col != col_option {
 				
-					println!("But {} was already discovered!", col);
 					col = 0; //Reset col to invalid input
 					break; //break out of the for loop
 				}
@@ -518,12 +501,18 @@ pub fn get_coordinates(text: &str) {
 			col_option = col_option + 1; //Increment col_option
 		}
 
+		if col == 0 { //If column is still invalid at this point, we should go to next iteration and not search for a row
+		
+			println!("Input is invalid\n"); //Let the user know the input is invalid
+			continue;
+		}
+
 		//Second, attempt to parse a row Letter
 
 		//A B C D E F G H I J
 		//one two three four five six seven eight nine ten
 		//numeral names contain: E F I G H, so check that these exist with spaces on the end
-		//E with a space on the end actually needs to be ignored, sice it is the only one of those letters that any number ends with
+		//E with a space on the end may actually need to be ignored, since it is the only one of those letters that any number ends with
 
 		//Check if a numeral name was found, so we know to be careful about E F G H and I, and make sure they have spaces
 		if col_name_found {
@@ -533,21 +522,17 @@ pub fn get_coordinates(text: &str) {
 			for row_name in ["A","B","C","D","E ","F ","G ","H ", "I ", "J"].iter() {
 		
 				if input.contains(row_name) { //If input string contains one of the above letters, some with spaces after them
-
-					println!("The letter {} was discovered!", row_name);
 			
 					//Check to see that no other rows have been found, or that 5 was found, since "E " may be read at the end of a number
 					if (row == 0) || (row == 5) {
 				
-						println!("{} was the first row discovered!", row_name);
 						row = row_option; //Set row to the row_option we just compared
 					}
 
 					//Else, since a row was already found:
-					//If the row was different, and this is not 5 (E)
+					//If the row was different, and this is not 5 meaning we didn't just find an E
 					else if (row != row_option) && (row_option != 5) {
 				
-						println!("But {} was already discovered!", row);
 						row = 0; //Reset row to invalid input
 						break; //break out of the for loop
 					}
@@ -563,20 +548,16 @@ pub fn get_coordinates(text: &str) {
 			for row_name in ["A","B","C","D","E","F","G","H","I","J"].iter() {
 		
 				if input.contains(row_name) { //If input string contains the numeral name
-
-					println!("The letter {} was discovered!", row_name);
 			
 					//Check to see that no other rows have been found
 					if row == 0 {
 				
-						println!("{} was the first row discovered!", row_name);
 						row = row_option; //Set row to the row_option we just compared
 					}
 
 					//Else, since a row was already found, check to see if it was a different row, other than "E", because "E " may have been read off the end of a number
 					else if row != row_option {
 				
-						println!("But {} was already discovered!", row);
 						row = 0; //Reset row to invalid input
 						break; //break out of the for loop
 					}
@@ -586,7 +567,7 @@ pub fn get_coordinates(text: &str) {
 			}
 		}
 
-		if (row == 0) || (col == 0) { //If result is -1 at this point, input was invalid
+		if row == 0 { //If row is 0 at this point, input was invalid
 
 			println!("Input is invalid\n"); //Let the user know the input is invalid
 		}
