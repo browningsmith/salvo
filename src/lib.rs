@@ -108,6 +108,29 @@
 	 * Description: Displays the board to standard output. Behavior for a board larger than 10x10
 	 *              is currently undefined.
 	 **********************************************************************************************/
+
+	 pub fn print_board(&self) {
+	 
+		println!("     1   2   3   4   5   6   7   8   9   10 "); //Print column numbers
+		println!("   |---|---|---|---|---|---|---|---|---|---|"); //Print top border
+
+		for row in 0..self.grid.len() { //For each row in the grid
+		
+			print!("{}  |", (row as u8 + 65) as char); //Print the letter of the row (65 is ascii for capital A), two spaces and a vertical divider
+
+			for col in 0..self.grid[row].len() { //For each column of the row
+			
+				//Print a space, the character at this location, a space, and vertical divider
+				print!(" {} |", self.grid[row][col]);
+			}
+
+			//Print a new line
+			println!("");
+			println!("   |---|---|---|---|---|---|---|---|---|---|"); //Print a horizontal divider
+		}
+
+		println!(""); //Print a new line to complete the board
+	 }
  }
 
  /***********************************************************************************************
