@@ -396,7 +396,21 @@ pub fn pause_for_enter() {
 * Input: &str text
 * Output: (u32, u32) coordinates
 *
-* Description: method that asks for coordinates
+* Description: This method prompts the user to enter coordinates, with custom prompt text. It is
+*              actually quite robust in detecting coordinates of any variation of the letters A-J
+*              for row letters, and numbers 1-10 or one-ten for column numbers.
+*
+*              Column and row can be entered in any order, for the most part
+*
+*              It is able to detect upper or lower case row numbers
+*
+*              It is able to detect column numbers whether they are numerals or words
+*
+*              Not case sensitive
+*
+*              Is a tad bit glitchy on reading user input that contain E F G H and I specifically, may detect The
+*              wrong coordinates, especially if the column is provided as a word rather than a numeral,
+*              so make sure the game asks the user to confirm after entering coordinates.
 **********************************************************************************************/
 
 pub fn get_coordinates(text: &str) {
