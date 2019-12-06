@@ -38,8 +38,8 @@
  use std::process;
 
  //Global constants
- const BOARD_HEIGHT: u32 = 10;
- const BOARD_WIDTH: u32 = 10;
+ //const BOARD_HEIGHT: u32 = 10;
+ //const BOARD_WIDTH: u32 = 10;
 
  /***********************************************************************************************
   * Enum Name: Difficulty
@@ -65,10 +65,10 @@
   *              several methods that control game flow and logic, as well as user interface.
   ***********************************************************************************************/
 
- pub struct GameBoard {
+ /*pub struct GameBoard {
  
 	board: Vec<Vec<char>>,
- }
+ }*/
 
  /***********************************************************************************************
   * Struct Name: Salvo
@@ -385,6 +385,55 @@ pub fn pause_for_enter() {
 
 	get_input_or_exit("Press 'ENTER' to continue");
 }
+
+/**********************************************************************************************
+* Function Name: get_coordinates
+* 
+* Input: &str text
+* Output: (u32, u32) coordinates
+*
+* Description: method that asks for coordinates
+**********************************************************************************************/
+
+/*pub fn get_coordinates(text: &str) -> (u32, u32) {
+
+	let mut row: i32 = 0; //declare row. This will be part of the the return value of the function. 0 indicates invalid input
+	let mut col: i32 = 0; //declare column. This will be part of the return value of the function. 0 indicates invalid input
+
+	while result == -1 { //As long as input is invalid
+
+		let input = get_input_or_exit(text); //prompt and get user input, capitalize it, and assign it to input
+
+		
+
+		for option in options.iter() { //For each option in the options array
+
+			if input.to_uppercase().contains(&option.to_uppercase()) { //If the input string contains the option
+
+				//Check to see that no other results have been found yet
+				if result == -1 {
+					result = results[n] as i32; //Set result to the proper result from results array
+				}
+
+				//Else, since a result was already found, check to see if it was a different result
+				else if result != results[n] as i32 {
+				
+					result = -1; //Reset result to -1, invalid input
+					break; //Break out of the for loop
+				}
+			}
+
+			n = n + 1; //Increment n, and repeat for loop to check next option
+		}
+
+		if result == -1 { //If result is -1 at this point, input was invalid
+
+			println!("Input is invalid\n"); //Let the user know the input is invalid
+		}
+	} //If input is -1 (invalid), this loop repeats
+
+	return result as u32; //Return the result
+}*/
 
 /**********************************************************************************************
 * Function Name: display_instructions
