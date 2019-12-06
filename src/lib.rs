@@ -38,8 +38,9 @@
  use std::process;
 
  //Global constants
- //const BOARD_HEIGHT: u32 = 10;
- //const BOARD_WIDTH: u32 = 10;
+ const BOARD_HEIGHT: u32 = 10;
+ const BOARD_WIDTH: u32 = 10;
+ const FLEET_SIZE: u32 = 5;
 
  /***********************************************************************************************
   * Enum Name: Difficulty
@@ -49,7 +50,7 @@
   * Description: Variants of AI difficulty
   ***********************************************************************************************/
 
- pub enum Difficulty {
+ enum Difficulty {
  
 	Easy,
 	Normal,
@@ -57,18 +58,105 @@
  }
 
  /***********************************************************************************************
-  * Struct Name: Salvo
+  * Struct Name: GameBoard
   *
-  * Attributes: Difficulty ai_difficulty
+  * Attributes: Vec<Vec<char>>
   *
-  * Description: Instance of a game of Salvo. Contains attributes of the state of the game, and
-  *              several methods that control game flow and logic, as well as user interface.
+  * Description: Game board. Two dimensional vector of characters, containing either empty spaces,
+  *              ship initials, 'X', or '~'
   ***********************************************************************************************/
 
- /*pub struct GameBoard {
+ pub struct GameBoard {
+
+	grid: Vec<Vec<char>>,
+ }
+
+ impl GameBoard {
+
+	/**********************************************************************************************
+	 * Function Name: new_board_empty
+	 * 
+	 * Input: None
+	 * Output: GameBoard
+	 *
+	 * Description: Creates a new instance of an empty game board
+	 **********************************************************************************************/
  
-	board: Vec<Vec<char>>,
- }*/
+	pub fn new_board_empty() -> GameBoard {
+
+		let mut new_grid: Vec<Vec<char>> = Vec::new(); //Create a new two dimensional vector
+
+		for row in 0..BOARD_HEIGHT { //For each row from 0 to BOARD_HEIGHT-1
+		
+			let mut new_row: Vec<char> = vec!['K'; BOARD_WIDTH as usize];  //Create a new vector of characters, length BOARD_WIDTH, filled with spaces
+
+			new_grid.push(new_row); //Push row on to grid
+		}
+
+		return GameBoard { //Create and return game board
+		
+			grid: new_grid,
+		}
+	}
+
+	/**********************************************************************************************
+	 * Function Name: print_board
+	 * 
+	 * Input: &self
+	 * Output: None
+	 *
+	 * Description: Displays the board to standard output. Behavior for a board larger than 10x10
+	 *              is currently undefined.
+	 **********************************************************************************************/
+ }
+
+ /***********************************************************************************************
+  * Struct Name: Player
+  *
+  * Attributes: String name, Fleet fleet, GameBoard board
+  *
+  * Description: Contains information about a player
+  ***********************************************************************************************/
+
+  struct Player {
+  
+	name: String,
+  }
+
+ /***********************************************************************************************
+  * Struct Name: Fleet
+  *
+  * Attributes: u32, size u32 ships_remaining, Vec<Ship> ships
+  *
+  * Description: Collection of a fleet of ships. Contains a list of ship objects, and keeps track
+  *              of how many of them are still afloat
+  ***********************************************************************************************/
+
+  struct Fleet {
+
+	size: u32,
+	ships_remaining: u32,
+	ships: Vec<Ship>,
+  }
+
+  /***********************************************************************************************
+  * Struct Name: Ship
+  *
+  * Attributes: String name, char letter, u32 length
+  *             u32 health, bool placed
+  *
+  * Description: Ship object, contains identifying information and status of a ship's dimensions
+  *              and health
+  ***********************************************************************************************/
+
+  struct Ship {
+  
+	name: String,
+	letter: char,
+	length: u32,
+	health: u32,
+	placed: bool,
+  }
 
  /***********************************************************************************************
   * Struct Name: Salvo
@@ -599,7 +687,7 @@ pub fn get_coordinates(text: &str) {
 * Description: Displays the instructions of Salvo
 **********************************************************************************************/
 
-pub fn display_instructions() {
+fn display_instructions() {
 
 	println!("Salvo is a classical naval combat simulation.");
 	println!("Each player is allocated their own 10x10 grid of open sea, where they can place their ships.");
