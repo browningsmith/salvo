@@ -297,28 +297,58 @@
 				//Get user input to parse
 				let mut input = get_input_or_exit("What would you like to do, Admiral?");
 
+				//Parse a command
+
 				//none is -1, so assume place or move
 				//double entry is -2, so invalid command
 				//random is 1
 				//remove or clear is 2
 				let command = find(&input, &["ran", "rem", "cle", "lear"], &[1,2,2,2]);
 
-				if command == 1 {
+				//Parse for the word all
+
+				//if all is found, 1, otherwise -1
+				let all = find(&input, &["all"], &[1]);
+
+				//Parse for a ship name
+				//none is -1, so valid for a remove all, clear all, or random command
+				//double entry is -2, so invalid on remove, clear, or move command
+				//Patrol Boat is 0
+				//Submarine is 1
+				//Destroyer is 2
+				//Battleship is 3
+				//Aircraft Carrier is 4
+				let ship_selection = find(&input, &["pat", "boa", "sub", "mar", "des", "roy", "bat","air","cra","car","rier"], &[0,0,1,1,2,2,3,4,4,4,4]);
+
+				if ship_selection == 0 {
 				
-					prompt_yn("You want a random arrangement, correct? Type 'yes' or 'no'.");
+					prompt_yn("You want to do something with the Patrol Boat, correct? Type 'yes' or 'no'.");
 				}
-				else if command == 2 {
+				else if ship_selection == 1 {
 				
-					prompt_yn("You wish to clear a ship or the whole board, correct? Type 'yes' or 'no'.");
+					prompt_yn("You want to do something with the Submarine, correct? Type 'yes' or 'no'.");
 				}
-				else if command == -2 {
+				else if ship_selection == 2 {
 				
-					println!("You entered more than one command and the system is confused");
+					prompt_yn("You want to do something with the Destroyer, correct? Type 'yes' or 'no'.");
+				}
+				else if ship_selection == 3 {
+				
+					prompt_yn("You want to do something with the Battleship, correct? Type 'yes' or 'no'.");
+				}
+				else if ship_selection == 4 {
+				
+					prompt_yn("You want to do something with the Aircraft Carrier, correct? Type 'yes' or 'no'.");
+				}
+				else if ship_selection == -2 {
+				
+					println!("It looks like you entered two or more different ship names.\n");
 					pause_for_enter();
 				}
 				else {
 				
-					prompt_yn("You wish to place or move a ship, correct? Type 'yes' or 'no'.");
+					println!("It looks like you didn't enter a ship name.\n");
+					pause_for_enter();
 				}
 			}
 		}
