@@ -221,6 +221,35 @@
 			board: GameBoard::new_board_empty(),
 		}
 	}
+
+	/**********************************************************************************************
+	 * Function Name: arrange_fleet
+	 * 
+	 * Input: &mut self
+	 * Output: None
+	 *
+	 * Changes: Player's GameBoard and Fleet objects
+	 *
+	 * Description: Handles the process of a user arranging the ships in their fleet. Currently tailored
+	 *              for a standard fleet only. To print a variable fleet would require significant
+	 *              changes to how things are printed
+	 **********************************************************************************************/
+
+	 fn arrange_fleet(&mut self) {
+	 
+		self.board.print_board(); //Print the board to Start
+
+		print!("   Patrol Boat      [P]        2 Spaces     Status: "); //Show the Patrol Boat stats
+		if self.fleet.ships[0].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		print!("   Submarine        [S]        3 Spaces     Status: "); //Show the Patrol Boat stats
+		if self.fleet.ships[1].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		print!("   Destroyer        [D]        3 Spaces     Status: "); //Show the Patrol Boat stats
+		if self.fleet.ships[2].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		print!("   Battleship       [B]        4 Spaces     Status: "); //Show the Patrol Boat stats
+		if self.fleet.ships[3].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		print!("   Aircraft Carrier [C]        5 Spaces     Status: "); //Show the Patrol Boat stats
+		if self.fleet.ships[4].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+	 }
   }
 
  /***********************************************************************************************
@@ -543,6 +572,9 @@
 	 *
 	 * Description: Begins running the game. Greets the user, has the user select difficulty, and then
 	 *              executes the game with the desired difficulty.
+	 *
+	 *              Currently handles game flow of 1 player game against the CPU. Minor refactoring
+	 *              will be needed to handle a two player game
 	 **********************************************************************************************/
 
 	pub fn run_game(&mut self) {
@@ -554,14 +586,10 @@
 	
 			self.select_difficulty(); //Have the user select difficulty for new game
 
-			println!("BEGIN {} GAME HERE", match self.ai_difficulty {
-			
-											Difficulty::Easy => "EASY",
-											Difficulty::Normal => "NORMAL",
-											Difficulty::Hard => "HARD",
+			//Have the user arrange their ships before the game Begins
+			println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
 
-			                               });
-			pause_for_enter();
+			self.player1.arrange_fleet(); //Have the user arrange their fleet manually
 		}
 	}
 
