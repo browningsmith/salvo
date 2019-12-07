@@ -201,6 +201,28 @@
 	board: GameBoard,
   }
 
+  impl Player {
+  
+	/**********************************************************************************************
+	 * Function Name: new_player
+	 * 
+	 * Input: &str
+	 * Output: Player
+	 *
+	 * Description: Creates a new player with given name, standard Fleet and empty GameBoard
+	 **********************************************************************************************/
+
+	fn new_player(name: &str) -> Player {
+	
+		Player {
+		
+			name: String::from(name),
+			fleet: Fleet::new_fleet_standard(),
+			board: GameBoard::new_board_empty(),
+		}
+	}
+  }
+
  /***********************************************************************************************
   * Struct Name: Fleet
   *
@@ -484,6 +506,8 @@
  pub struct Salvo {
 
 	ai_difficulty: Difficulty, //AI dificulty
+	player1: Player,
+	player2: Player,
  }
 
  impl Salvo {
@@ -495,7 +519,7 @@
 	 * Output: Salvo
 	 *
 	 * Description: returns a new instance of Salvo. By default, ai_difficulty is set to Normal.
-	 *              2 Players are created, with empty names, and each is given a standard unplaced
+	 *              2 Players are created, User and CPU, and each is given a standard unplaced
 	 *              fleet and an empty game board
 	 **********************************************************************************************/
 
@@ -504,6 +528,8 @@
 		Salvo {
 		
 			ai_difficulty: Difficulty::Normal, //Set AI difficulty to Normal
+			player1: Player::new_player("User"),
+			player2: Player::new_player("CPU"),
 		}
 	}
 
@@ -523,7 +549,7 @@
 	
 		println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
 
-		/*//Infinite loop, begin game flow. Will continue to start new games until the user exits
+		//Infinite loop, begin game flow. Will continue to start new games until the user exits
 		loop {
 	
 			self.select_difficulty(); //Have the user select difficulty for new game
@@ -536,40 +562,6 @@
 
 			                               });
 			pause_for_enter();
-		}*/
-
-		let mut fleet = Fleet::new_fleet_standard();
-
-		println!("Fleet size: {}", fleet.size());
-		println!("Ships remaining: {}\n", fleet.ships_remaining());
-
-		for ship in &fleet.ships {
-		
-			println!("Name: {}", ship.get_name());
-			println!("Letter: {}", ship.get_letter());
-			println!("Length: {}", ship.get_length());
-			println!("Health: {}", ship.get_health());
-			println!("Placed: {}", ship.get_placed());
-			println!("Sunk: {}", ship.get_sunk());
-			println!("");
-		}
-
-		fleet.ships[2].damage();
-		fleet.ships[2].damage();
-		fleet.ships[2].damage();
-
-		println!("Fleet size: {}", fleet.size());
-		println!("Ships remaining: {}\n", fleet.ships_remaining());
-
-		for ship in &fleet.ships {
-		
-			println!("Name: {}", ship.get_name());
-			println!("Letter: {}", ship.get_letter());
-			println!("Length: {}", ship.get_length());
-			println!("Health: {}", ship.get_health());
-			println!("Placed: {}", ship.get_placed());
-			println!("Sunk: {}", ship.get_sunk());
-			println!("");
 		}
 	}
 
