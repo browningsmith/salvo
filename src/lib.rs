@@ -40,7 +40,6 @@
  //Global constants
  const BOARD_HEIGHT: u32 = 10;
  const BOARD_WIDTH: u32 = 10;
- const FLEET_SIZE: u32 = 5;
 
  /***********************************************************************************************
   * Enum Name: Difficulty
@@ -205,7 +204,7 @@
  /***********************************************************************************************
   * Struct Name: Fleet
   *
-  * Attributes: u32, size u32 ships_remaining, Vec<Ship> ships
+  * Attributes: Vec<Ship> ships
   *
   * Description: Collection of a fleet of ships. Contains a list of ship objects, and keeps track
   *              of how many of them are still afloat
@@ -213,9 +212,83 @@
 
   struct Fleet {
 
-	size: u32,
-	ships_remaining: u32,
 	ships: Vec<Ship>,
+  }
+
+  impl Fleet {
+  
+	/**********************************************************************************************
+	 * Function Name: new_fleet_standard
+	 * 
+	 * Input: None
+	 * Output: Fleet
+	 *
+	 * Description: Creates and returns a standard Salvo fleet with the following five ships:
+	 *
+	 *              Patrol Boat      [P] length 2
+	 *              Submarine        [S] length 3
+	 *              Destroyer        [D] length 3
+	 *              Battleship       [B] length 4
+	 *              Aircraft Carrier [C] length 5
+	 *
+	 *              All ships are initialized as full health, unsunk and unplaced
+	 *              
+	 **********************************************************************************************/
+
+	 fn new_fleet_standard() -> Fleet {
+	 
+		let mut fleet_vec: Vec<Ship> = Vec::new(); //Create new vector
+
+		fleet_vec.push(Ship::new_ship("Patrol Boat", 'P', 2)); //Add Patrol Boat
+		fleet_vec.push(Ship::new_ship("Submarine", 'S', 3)); //Add Patrol Boat
+		fleet_vec.push(Ship::new_ship("Destroyer", 'D', 3)); //Add Patrol Boat
+		fleet_vec.push(Ship::new_ship("Battleship", 'B', 4)); //Add Patrol Boat
+		fleet_vec.push(Ship::new_ship("Aircraft Carrier", 'C', 5)); //Add Patrol Boat
+		
+		Fleet { //Create and return a new fleet
+		
+			ships: fleet_vec,
+		}
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: size
+	 * 
+	 * Input: &self
+	 * Output: u32
+	 *
+	 * Description: Returns the total size of the fleet, both sunk and unsunk ships
+	 **********************************************************************************************/
+
+	 fn size(&self) -> u32 {
+	 
+		self.ships.len() as u32
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: ships_remaining
+	 * 
+	 * Input: &self
+	 * Output: u32
+	 *
+	 * Description: Returns the total number of ships that remain afloat in the fleet
+	 **********************************************************************************************/
+
+	 fn ships_remaining(&self) -> u32 {
+	 
+		let mut remain_count = 0; //Declare remain_count, start it at 0
+
+		for ship in &(self.ships) {
+		
+			//For each ship not found sunk, increment remain_count;
+			if ship.get_sunk() == false {
+			
+				remain_count += 1;
+			}
+		}
+
+		remain_count
+	 }
   }
 
   /***********************************************************************************************
@@ -465,25 +538,38 @@
 			pause_for_enter();
 		}*/
 
-		let mut ship = Ship::new_ship("Aircraft Carrier", 'C', 5);
+		let mut fleet = Fleet::new_fleet_standard();
 
-		println!("Name: {}", ship.get_name());
-		println!("Letter: {}", ship.get_letter());
-		println!("Length: {}", ship.get_length());
-		println!("Health: {}", ship.get_health());
-		println!("Sunk: {}", ship.get_sunk());
-		println!("Placed: {}", ship.get_placed());
+		println!("Fleet size: {}", fleet.size());
+		println!("Ships remaining: {}\n", fleet.ships_remaining());
 
-		for n in 0..10 {
+		for ship in &fleet.ships {
 		
-			println!("Damaging {}\n", ship.get_name());
-
-			ship.damage();
-		
+			println!("Name: {}", ship.get_name());
+			println!("Letter: {}", ship.get_letter());
 			println!("Length: {}", ship.get_length());
 			println!("Health: {}", ship.get_health());
-			println!("Sunk: {}", ship.get_sunk());
 			println!("Placed: {}", ship.get_placed());
+			println!("Sunk: {}", ship.get_sunk());
+			println!("");
+		}
+
+		fleet.ships[2].damage();
+		fleet.ships[2].damage();
+		fleet.ships[2].damage();
+
+		println!("Fleet size: {}", fleet.size());
+		println!("Ships remaining: {}\n", fleet.ships_remaining());
+
+		for ship in &fleet.ships {
+		
+			println!("Name: {}", ship.get_name());
+			println!("Letter: {}", ship.get_letter());
+			println!("Length: {}", ship.get_length());
+			println!("Health: {}", ship.get_health());
+			println!("Placed: {}", ship.get_placed());
+			println!("Sunk: {}", ship.get_sunk());
+			println!("");
 		}
 	}
 
