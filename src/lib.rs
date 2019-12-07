@@ -99,6 +99,34 @@
 	}
 
 	/**********************************************************************************************
+	 * Function Name: get_height
+	 * 
+	 * Input: &self
+	 * Output: usize
+	 *
+	 * Description: Returns the height of the board, ie. number of rows
+	 **********************************************************************************************/
+
+	pub fn  get_height(&self) -> usize {
+	
+		self.grid.len() //Return the height of first dimension of board, or number of rows
+	}
+
+	/**********************************************************************************************
+	 * Function Name: get_width
+	 * 
+	 * Input: &self
+	 * Output: usize
+	 *
+	 * Description: Returns the width of the board, ie. number of columns
+	 **********************************************************************************************/
+
+	pub fn  get_width(&self) -> usize {
+	
+		self.grid[0].len() //Return the height of second dimension of board, or number of columns
+	}
+
+	/**********************************************************************************************
 	 * Function Name: print_board
 	 * 
 	 * Input: &self
@@ -605,9 +633,9 @@
 	pub fn run_game(&mut self) {
 	
 		println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
-
+		
 		//Infinite loop, begin game flow. Will continue to start new games until the user exits
-		/*loop {
+		loop {
 	
 			self.select_difficulty(); //Have the user select difficulty for new game
 
@@ -615,14 +643,8 @@
 			println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
 
 			self.player1.arrange_fleet(); //Have the user arrange their fleet manually
-		}*/
-		
-		let mut input = get_input_or_exit("Type in George, John, Ringo, or Paul");
+		}
 
-		if find(&input, &["george"], &[1]) == 1 {println!("George Found!");} else {println!("George Not Found!");}
-		if find(&input, &["john"], &[1]) == 1 {println!("John Found!");} else {println!("John Not Found!");}
-		if find(&input, &["ringo"], &[1]) == 1 {println!("Ringo Found!");} else {println!("Ringo Not Found!");}
-		if find(&input, &["paul"], &[1]) == 1 {println!("Paul Found!");} else {println!("Paul Not Found!");}
 	}
 
 	/**********************************************************************************************
