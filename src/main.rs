@@ -43,36 +43,5 @@ use salvo;
 
 fn main() {
 
-    //salvo::Salvo::new_game().run_game(); //Create a new Salvo game instance and then run it.
-
-	let mut board = salvo::GameBoard::new_board_empty();
-
-	board.print_board();
-
-	println!("Adding A's");
-
-	board.write_space(1,1,'A');
-	board.write_space(2,7,'A');
-	board.write_space(0,4,'A');
-	board.write_space(2,9,'A');
-	board.write_space(5,5,'A');
-
-	board.print_board();
-
-	println!("Adding B's");
-
-	board.write_space(7,1,'B');
-	board.write_space(9,7,'B');
-	board.write_space(8,4,'B');
-	board.write_space(0,9,'B');
-	board.write_space(3,5,'B');
-
-	board.print_board();
-
-	println!("Removing A's");
-
-	board.clear_symbol('A');
-
-	board.print_board();
-	
+    salvo::Salvo::new_game().run_game(); //Create a new Salvo game instance and then run it.
 }

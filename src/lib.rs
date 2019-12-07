@@ -198,6 +198,8 @@
   struct Player {
   
 	name: String,
+	fleet: Fleet,
+	board: GameBoard,
   }
 
  /***********************************************************************************************
@@ -235,10 +237,172 @@
 	placed: bool,
   }
 
+  impl Ship {
+  
+	/**********************************************************************************************
+	 * Function Name: new_ship
+	 * 
+	 * Input: name: &str, letter: char, length: u32
+	 * Output: Ship
+	 *
+	 * Description: Returns a new instance of ship with the given above parameters. By default,
+	 *              ship is set to full health and set to not placed
+	 **********************************************************************************************/
+
+	fn new_ship(name: &str, letter: char, length: u32) -> Ship {
+	
+		//Return new Ship with given parameters as attributes
+		Ship {
+
+			name: String::from(name), //create new string object from passed slice
+			letter,
+			length,
+			health: length, //Health should start as the same as length
+			placed: false,  //Ship is not placed by default
+		}
+	}
+
+	/**********************************************************************************************
+	 * Function Name: get_name
+	 * 
+	 * Input: &self
+	 * Output: &str
+	 *
+	 * Description: Returns string slice of the ship's name
+	 **********************************************************************************************/
+
+	fn get_name(&self) -> &str {
+	
+		&(self.name)
+	}
+
+	/**********************************************************************************************
+	 * Function Name: get_letter
+	 * 
+	 * Input: &self
+	 * Output: char
+	 *
+	 * Description: Returns the ships letter, which the board uses to represent it
+	 **********************************************************************************************/
+
+	fn get_letter(&self) -> char {
+	
+		self.letter
+	}
+
+	/**********************************************************************************************
+	 * Function Name: get_length
+	 * 
+	 * Input: &self
+	 * Output: u32
+	 *
+	 * Description: Returns ship length
+	 **********************************************************************************************/
+
+	fn get_length(&self) -> u32 {
+	
+		self.length
+	}
+
+	/**********************************************************************************************
+	 * Function Name: get_health
+	 * 
+	 * Input: &self
+	 * Output: u32
+	 *
+	 * Description: Returns value of ship's current health
+	 **********************************************************************************************/
+
+	fn get_health(&self) -> u32 {
+	
+		self.health
+	}
+
+	/**********************************************************************************************
+	 * Function Name: get_sunk
+	 * 
+	 * Input: &self
+	 * Output: bool
+	 *
+	 * Description: Returns true if the ship has been sunk, false otherwise. Ship is sunk if health
+	 *              is 0.
+	 **********************************************************************************************/
+
+	fn get_sunk(&self) -> bool {
+	
+		match self.health {
+		
+			0 => true,
+			_ => false,
+		}
+	}
+
+	/**********************************************************************************************
+	 * Function Name: get_placed
+	 * 
+	 * Input: &self
+	 * Output: bool
+	 *
+	 * Description: Returns whether the ship has been placed or not
+	 **********************************************************************************************/
+
+	 fn get_placed(&self) -> bool {
+	 
+		self.placed
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: place
+	 * 
+	 * Input: &self
+	 * Output: None
+	 *
+	 * Description: Sets that the ship has been placed on the board. Does not actually write to game
+	 *              board, only sets internal flag of ship
+	 **********************************************************************************************/
+
+	 fn place(&mut self) {
+	 
+		self.placed = true;
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: remove
+	 * 
+	 * Input: &self
+	 * Output: None
+	 *
+	 * Description: Sets that the ship has been removed from the board. Does not actually write to game
+	 *              board, only sets internal flag of ship
+	 **********************************************************************************************/
+
+	 fn remove(&mut self) {
+	 
+		self.placed = false;
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: damage
+	 * 
+	 * Input: &self
+	 * Output: None
+	 *
+	 * Description: Decrements ship health by 1. If ships health is already at 0 it does nothing
+	 **********************************************************************************************/
+
+	 fn damage(&mut self) {
+	 
+		if self.health > 0 { //If health is greater than 0
+		
+			self.health -= 1; //remove one level of health
+		}
+	 }
+  }
+
  /***********************************************************************************************
   * Struct Name: Salvo
   *
-  * Attributes: Difficulty ai_difficulty
+  * Attributes: Difficulty ai_difficulty, Player player1, Player player2
   *
   * Description: Instance of a game of Salvo. Contains attributes of the state of the game, and
   *              several methods that control game flow and logic, as well as user interface.
@@ -258,6 +422,8 @@
 	 * Output: Salvo
 	 *
 	 * Description: returns a new instance of Salvo. By default, ai_difficulty is set to Normal.
+	 *              2 Players are created, with empty names, and each is given a standard unplaced
+	 *              fleet and an empty game board
 	 **********************************************************************************************/
 
 	pub fn new_game() -> Salvo {
@@ -284,7 +450,7 @@
 	
 		println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
 
-		//Infinite loop, begin game flow. Will continue to start new games until the user exits
+		/*//Infinite loop, begin game flow. Will continue to start new games until the user exits
 		loop {
 	
 			self.select_difficulty(); //Have the user select difficulty for new game
@@ -297,6 +463,27 @@
 
 			                               });
 			pause_for_enter();
+		}*/
+
+		let mut ship = Ship::new_ship("Aircraft Carrier", 'C', 5);
+
+		println!("Name: {}", ship.get_name());
+		println!("Letter: {}", ship.get_letter());
+		println!("Length: {}", ship.get_length());
+		println!("Health: {}", ship.get_health());
+		println!("Sunk: {}", ship.get_sunk());
+		println!("Placed: {}", ship.get_placed());
+
+		for n in 0..10 {
+		
+			println!("Damaging {}\n", ship.get_name());
+
+			ship.damage();
+		
+			println!("Length: {}", ship.get_length());
+			println!("Health: {}", ship.get_health());
+			println!("Sunk: {}", ship.get_sunk());
+			println!("Placed: {}", ship.get_placed());
 		}
 	}
 
