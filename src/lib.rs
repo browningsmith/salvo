@@ -265,18 +265,63 @@
 
 	 fn arrange_fleet(&mut self) {
 	 
-		self.board.print_board(); //Print the board to Start
+		//as long as number of ships deployed does not equal number of ships in fleet:
+		while self.fleet.get_deployed() != self.fleet.size() {
 
-		print!("   Patrol Boat      [P]        2 Spaces     Status: "); //Show the Patrol Boat stats
-		if self.fleet.ships[0].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-		print!("   Submarine        [S]        3 Spaces     Status: "); //Show the Patrol Boat stats
-		if self.fleet.ships[1].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-		print!("   Destroyer        [D]        3 Spaces     Status: "); //Show the Patrol Boat stats
-		if self.fleet.ships[2].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-		print!("   Battleship       [B]        4 Spaces     Status: "); //Show the Patrol Boat stats
-		if self.fleet.ships[3].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-		print!("   Aircraft Carrier [C]        5 Spaces     Status: "); //Show the Patrol Boat stats
-		if self.fleet.ships[4].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+			let mut invalid_command = true; //Create flag for invalid_command. As long as command is invalid, repeat next loop
+
+			while invalid_command {
+
+				self.board.print_board(); //Print the board to Start
+
+				print!("   Patrol Boat      [P]        2 Spaces     Status: "); //Show the Patrol Boat stats
+				if self.fleet.ships[0].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+				print!("   Submarine        [S]        3 Spaces     Status: "); //Show the Sub stats
+				if self.fleet.ships[1].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+				print!("   Destroyer        [D]        3 Spaces     Status: "); //Show the Destroyer stats
+				if self.fleet.ships[2].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+				print!("   Battleship       [B]        4 Spaces     Status: "); //Show the Battleship stats
+				if self.fleet.ships[3].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+				print!("   Aircraft Carrier [C]        5 Spaces     Status: "); //Show the Aircraft Carrier stats
+				if self.fleet.ships[4].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+				println!("");
+			
+				//Give instructions on how to place ships
+
+				println!("To select a ship to place or move, enter the ship's name.");
+				println!("To remove a ship, type 'remove' or 'clear', followed by the ship's name.");
+				println!("To remove all ships from the board, type 'remove all' or 'clear all'.");
+				println!("You can cancel a 'move' or 'clear' command at any time by typing 'cancel'.");
+				println!("For a random arrangement, type 'random'.\n");
+
+				//Get user input to parse
+				let mut input = get_input_or_exit("What would you like to do, Admiral?");
+
+				//none is -1, so assume place or move
+				//double entry is -2, so invalid command
+				//random is 1
+				//remove or clear is 2
+				let command = find(&input, &["ran", "rem", "cle", "lear"], &[1,2,2,2]);
+
+				if command == 1 {
+				
+					prompt_yn("You want a random arrangement, correct? Type 'yes' or 'no'.");
+				}
+				else if command == 2 {
+				
+					prompt_yn("You wish to clear a ship or the whole board, correct? Type 'yes' or 'no'.");
+				}
+				else if command == -2 {
+				
+					println!("You entered more than one command and the system is confused");
+					pause_for_enter();
+				}
+				else {
+				
+					prompt_yn("You wish to place or move a ship, correct? Type 'yes' or 'no'.");
+				}
+			}
+		}
 	 }
   }
 
@@ -824,14 +869,13 @@ pub fn prompt_yn(text: &str) -> bool {
 *              unsigned integer is to be returned if the corresponding string from the second argument
 *              is found. These must be greater than or equal to 0!
 *
-*              If the user enters two or more valid inputs on the same line, the input is considered invalid.
+*              Returns -1 if no options are found
+*              Returns -2 if multiple options are found
 *
 *              However, if you would like there to be more than one option that return the same result, place
 *              the same unsigned integer in the corresponding locations of the third argument for those options.
-*              In this case the function will not consider it invalid if two different options that Return
+*              In this case the function will return that result if two different options that return
 *              the same result are entered on one line. Otherwise, have a unique unsigned integer for each option.
-*
-*              Returns -1 if no valid input is found
 *
 *              Behavior is undefined if the second and third arguments are not equally
 *              sized arrays.
@@ -839,7 +883,7 @@ pub fn prompt_yn(text: &str) -> bool {
 
 pub fn find(input: &str, options: &[&str], results: &[u32]) -> i32 {
 
-	let mut result: i32 = -1; //declare result. This will be the return value of the Function. -1 indicates invalid input
+	let mut result: i32 = -1; //declare result. This will be the return value of the Function. -1 indicates invalid input, -2 indicates double entry
 
 	let input = input.to_uppercase(); //Convert input to uppercase
 
@@ -857,7 +901,7 @@ pub fn find(input: &str, options: &[&str], results: &[u32]) -> i32 {
 			//Else, since a result was already found, check to see if it was a different result
 			else if result != results[n] as i32 {
 				
-				result = -1; //Reset result to -1, invalid input
+				result = -2; //Reset result to -2, double entry
 				break; //Break out of the for loop
 			}
 		}
@@ -865,7 +909,7 @@ pub fn find(input: &str, options: &[&str], results: &[u32]) -> i32 {
 		n = n + 1; //Increment n, and repeat for loop to check next option
 	}
 
-	//If result is -1 at this point, input was invalid, otherwise it will be something from options array
+	//If result is -1 at this point, no options were found, otherwise it will be something from options array, or -2 if more than one was found
 
 	return result; //Return the result
 }
@@ -1161,7 +1205,7 @@ pub fn get_coordinates(text: &str) {
 		}
 	} //If input was invalid this loop repeats
 
-	println!("Coordinates interpreted: {} {}", row, col);
+	println!("Coordinates interpreted: {} {}", row-1, col-1);
 }
 
 /**********************************************************************************************
