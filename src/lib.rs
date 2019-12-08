@@ -145,14 +145,16 @@
 	/**********************************************************************************************
 	 * Function Name: print_board
 	 * 
-	 * Input: &self
+	 * Input: &self, masked: bool
 	 * Output: None
 	 *
 	 * Description: Displays the board to standard output. Behavior for a board larger than 10x10
 	 *              is currently undefined.
+	 *
+	 *              If masked is set to true, hides all ship designations
 	 **********************************************************************************************/
 
-	 pub fn print_board(&self) {
+	 pub fn print_board(&self, masked: bool) {
 	 
 		println!("      1   2   3   4   5   6   7   8   9   10 "); //Print column numbers
 		println!("  --|---|---|---|---|---|---|---|---|---|---|"); //Print top border
@@ -163,8 +165,21 @@
 
 			for col in 0..self.grid[row].len() { //For each column of the row
 			
-				//Print a space, the character at this location, a space, and vertical divider
-				print!(" {} |", self.grid[row][col]);
+				if masked {
+				
+					//Print a space, the character at this location, a space, and vertical divider
+					print!(" {} |", match self.grid[row][col] {
+					
+						'~' => '~', //If it is a miss character, okay to print
+						'X' => 'X', //If it is a hit character, okay to print
+						_ => ' ', //anything else hide with a space
+					});
+				}
+				else {
+				
+					//Print a space, the character at this location, a space, and vertical divider
+					print!(" {} |", self.grid[row][col]);
+				}
 			}
 
 			//Print a new line
@@ -288,7 +303,7 @@
 
 			while invalid_command {
 
-				self.board.print_board(); //Print the board to Start
+				self.board.print_board(false); //Print the board to Start
 
 				print!("   Patrol Boat      [P]        2 Spaces     Status: "); //Show the Patrol Boat stats
 				if self.fleet.ships[0].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
@@ -778,15 +793,22 @@
 		println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
 		
 		//Infinite loop, begin game flow. Will continue to start new games until the user exits
-		loop {
+		//loop {
 	
 			//self.select_difficulty(); //Have the user select difficulty for new game
 
 			//Have the user arrange their ships before the game Begins
-			println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
+			//println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
+			
+			//self.player1.arrange_fleet(); //Have the user arrange their fleet manually
 
-			self.player1.arrange_fleet(); //Have the user arrange their fleet manually
-		}
+			self.player1.place_ship(4,4,4,Orientation::Left);
+			self.player1.place_ship(0,0,9,Orientation::Down);
+			self.player1.board.write_space(9,5,'X');
+			self.player1.board.write_space(9,3,'~');
+			self.player1.board.print_board(false);
+			self.player1.board.print_board(true);
+		//}
 
 	}
 
