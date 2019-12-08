@@ -826,7 +826,9 @@
 			//self.player1.arrange_fleet(); //Have the user arrange their fleet manually
 
 			let mut input = get_input_or_exit("Type in some coordinates");
-			find_coordinates(&input);
+			let (row, col) = find_coordinates(&input);
+
+			println!("Coordinates interpreted are {} {}", row, col);
 		}
 
 	}
@@ -1153,46 +1155,42 @@ pub fn pause_for_enter() {
 * Input: &str text
 * Output: (u32, u32) coordinates
 *
-* Description: This method prompts the user to enter coordinates, with custom prompt text. It is
+* Description: This method interpets a line of text to see if it contains calid Salvo coordinates. It is
 *              actually quite robust in detecting coordinates of any variation of the letters A-J
 *              for row letters, and numbers 1-10 or one-ten for column numbers.
 *
-*              Column and row can be entered in any order, for the most part
+*              Column and row can be entered in any order.
 *
-*              It is able to detect upper or lower case row numbers
+*              It is able to detect upper or lower case row numbers.
 *
-*              It is able to detect column numbers whether they are numerals or words
+*              It is able to detect column numbers whether they are numerals or words.
 *
 *              Not case sensitive
 *
-*              Is a tad bit glitchy on reading user input that contain E F G H and I specifically, may detect The
-*              wrong coordinates, especially if the column is provided as a word rather than a numeral,
-*              so make sure the game asks the user to confirm after entering coordinates.
+*              Is a tad bit glitchy on reading user input that contain E F G H or I, since
+*              those letters specifically exist inside some number words.
 **********************************************************************************************/
 
-pub fn find_coordinates(input: &str) {
+pub fn find_coordinates(input: &str) -> (i32, i32) {
 
 	//Attempt to parse a number name. -1 is nothing, -2 means double entry and is invalid
 	let number_name = find(input, &["on","two","thr","fou","fiv","six","sev","eight","nin","ten"], &[1,2,3,4,5,6,7,8,9,10]);
-	let mut number_name_found = false; //Assume a number name was not found
 
 	if number_name == -2 { //If there was a double entry
 	
-		println!("Invalid coordinates");
-		return;
+		//println!("Multiple number words detected");
+		return (-1, -1); //Invalid coordinates, return -1, -1
 	}
-	else if number_name != -1 { //If number_name is anything other than -1, that means it found something
-	
-		number_name_found = true;
-	}
+
+	//Here number_name is either -1 for nothing found, or it is something, 1-10
 
 	//Attempt to parse a numeral. -1 is nothing, -2 means double entry and is invalid
 	let mut number = find(input, &["1","2","3","4","5","6","7","8","9"], &[1,2,3,4,5,6,7,8,9]);
 
 	if number == -2 { //If there was a double entry
 	
-		println!("Invalid coordinates.");
-		return;
+		//println!("Multiple number digits detected");
+		return (-1, -1); //Invalid coordinates, return -1, -1
 	}
 
 	if number == 1 { //If number is 1, go back and look for a 10
@@ -1206,13 +1204,13 @@ pub fn find_coordinates(input: &str) {
 		}
 	}
 
-	//At this point. number_name and number may have both found something, and number_name_found may be true
+	//At this point. number_name and number may have both found something, or not
 
 	//If neither one found anything
 	if (number_name == -1) && (number == -1) {
 	
-		println!("Invalid coordinates");
-		return;
+		//println!("No numbers detected");
+		return (-1, -1); //Invalid coordinates, return -1, -1
 	}
 
 	//If both number_name and number found something
@@ -1221,18 +1219,15 @@ pub fn find_coordinates(input: &str) {
 		//If number_name and number are not the same thing, that is not okay
 		if number_name != number {
 		
-			println!("Invalid coordinates");
-			return;
+			//println!("A number word and a differend number digit was detected");
+			return (-1, -1); //Invalid coordinates, return -1, -1
 		}
 	}
 	//Else if number_name is -1
 	else if number == -1 {
 
-		
 		number = number_name; //Set number to number_name, since it contains the interpreted column value
 	}
-
-	println!("The column that was interpeted is {}", number);
 
 	//A B C D E F G H I J
 	//one two three four five six seven eight nine ten
@@ -1245,49 +1240,39 @@ pub fn find_coordinates(input: &str) {
 	//Eight contains E, G, H and I
 	//Nine contains E and I
 	//ten contains E
-	//E with a space on the end may actually need to be ignored, since it is the only one of those letters that any number ends with
 
 	//Next, attempt to parse a row letter
 	let mut letter = -2; //Initialize letter to invalid input
 
-	
+	//If a number name was found, we need to be careful about some letters, and check that there are spaces before or after them
 
-	//If a number name was found, we need to be careful about some letters
-	if number_name_found {
-	
-		match number_name {
+	match number_name {
 		
-			1 => println!("The name of the number {} was found, so we have to be careful of 'E'", number),
-			3 => println!("The name of the number {} was found, so we have to be careful of 'E'", number),
-			4 => println!("The name of the number {} was found, so we have to be careful of 'F'", number),
-			5 => println!("The name of the number {} was found, so we have to be careful of 'E', 'F', and 'I'", number),
-			6 => println!("The name of the number {} was found, so we have to be careful of 'I'", number),
-			7 => println!("The name of the number {} was found, so we have to be careful of 'E'", number),
-			8 => println!("The name of the number {} was found, so we have to be careful of 'E', 'G', 'H', and 'I'", number),
-			9 => println!("The name of the number {} was found, so we have to be careful of 'E' and 'I'", number),
-			10 => println!("The name of the number {} was found, so we have to be careful of 'E'", number),
-			_ => (),
-
-		}
-
-		match number_name {
-		
-			1 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
-			3 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
-			4 => letter = find(input, &["a","b","c","d","e","f "," f","g","h","i","j"], &[1,2,3,4,5,6,6,7,8,9,10]),
-			5 => letter = find(input, &["a","b","c","d","e "," e","f "," f","g","h","i "," i","j"], &[1,2,3,4,5,5,6,6,7,8,9,9,10]),
-			6 => letter = find(input, &["a","b","c","d","e","f","g","h","i "," i","j"], &[1,2,3,4,5,6,7,8,9,9,10]),
-			7 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
-			8 => letter = find(input, &["a","b","c","d","e "," e","f","g "," g","h "," h","i "," i","j"], &[1,2,3,4,5,5,6,7,7,8,8,9,9,10]),
-			9 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i "," i","j"], &[1,2,3,4,5,5,6,7,8,9,9,10]),
-			10 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
-			_ => (),
-		}
+		1 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
+		3 => letter = find(input, &["a","b","c","d","e "," e","f","g","h "," h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
+		4 => letter = find(input, &["a","b","c","d","e","f ","g","h","i","j"], &[1,2,3,4,5,6,7,8,9,10]),
+		5 => letter = find(input, &["a","b","c","d","e "," e","f ","g","h","i "," i","j"], &[1,2,3,4,5,5,6,7,8,9,9,10]),
+		6 => letter = find(input, &["a","b","c","d","e","f","g","h","i "," i","j"], &[1,2,3,4,5,6,7,8,9,9,10]),
+		7 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
+		8 => letter = find(input, &["a","b","c","d","e "," e","f","g "," g","h "," h","i "," i","j"], &[1,2,3,4,5,5,6,7,7,8,8,9,9,10]),
+		9 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i "," i","j"], &[1,2,3,4,5,5,6,7,8,9,9,10]),
+		10 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
+		_ => letter = find(input, &["a","b","c","d","e","f","g","h","i","j"], &[1,2,3,4,5,6,7,8,9,10]),
 	}
-	else { //Don't need to be careful about any letters
+
+	if letter == -2 { //If a double entry occured
 	
-		letter = find(input, &["a","b","c","d","e","f","g","h","i","j"], &[1,2,3,4,5,6,7,8,9,10]);
+		//println!("Multiple row letters detected");
+		return (-1, -1); //Invalid coordinates, return -1, -1
 	}
+	else if letter == -1 { //If letter didn't find anything
+	
+		//println!("No row letters detected");
+		return (-1, -1); //Invalid coordinates, return -1, -1
+	}
+	
+	//At this point, we have valid coordinates, return them, as zero-based indexing
+	(letter - 1, number - 1)
 }
 
 /**********************************************************************************************
