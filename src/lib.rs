@@ -57,6 +57,22 @@
  }
 
  /***********************************************************************************************
+  * Enum Name: Orientation
+  *
+  * Variants: Up, Right, Left, Down
+  *
+  * Description: Variants of how a ship can be placed
+  ***********************************************************************************************/
+
+ enum Orientation {
+ 
+	Up,
+	Right,
+	Left,
+	Down,
+ }
+
+ /***********************************************************************************************
   * Struct Name: GameBoard
   *
   * Attributes: Vec<Vec<char>>
@@ -179,7 +195,7 @@
 	 * Input: &self, usize row, usize col
 	 * Output: char
 	 *
-	 * Description: Changes the element at row and col of board to c
+	 * Description: Returns the character of the space at the given coordinates
 	 **********************************************************************************************/
 
 	 pub fn get_space(&self, row: usize, col: usize) -> char {
@@ -305,7 +321,7 @@
 				//remove or clear is 2
 				let command = find(&input, &["ran", "rem", "cle", "lear"], &[1,2,2,2]);
 
-				//Parse for the word all
+				//Parse for the word "all"
 
 				//if all is found, 1, otherwise -1
 				let all = find(&input, &["all"], &[1]);
@@ -320,38 +336,90 @@
 				//Aircraft Carrier is 4
 				let ship_selection = find(&input, &["pat", "boa", "sub", "mar", "des", "roy", "bat","air","cra","car","rier"], &[0,0,1,1,2,2,3,4,4,4,4]);
 
-				if ship_selection == 0 {
-				
-					prompt_yn("You want to do something with the Patrol Boat, correct? Type 'yes' or 'no'.");
-				}
-				else if ship_selection == 1 {
-				
-					prompt_yn("You want to do something with the Submarine, correct? Type 'yes' or 'no'.");
-				}
-				else if ship_selection == 2 {
-				
-					prompt_yn("You want to do something with the Destroyer, correct? Type 'yes' or 'no'.");
-				}
-				else if ship_selection == 3 {
-				
-					prompt_yn("You want to do something with the Battleship, correct? Type 'yes' or 'no'.");
-				}
-				else if ship_selection == 4 {
-				
-					prompt_yn("You want to do something with the Aircraft Carrier, correct? Type 'yes' or 'no'.");
-				}
-				else if ship_selection == -2 {
-				
-					println!("It looks like you entered two or more different ship names.\n");
-					pause_for_enter();
-				}
-				else {
-				
-					println!("It looks like you didn't enter a ship name.\n");
-					pause_for_enter();
-				}
+				//If the command is 1, do a random arrangement
+
+				//If the command is 2, and all is 1, ask the user if they are sure they want to clear the board
+
+				//If the command is a double entry, input is invalid, repeat all instructions by continuing loop
+
+				//If no command was entered, assume user wants to move or place a ship
 			}
 		}
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: place_ship
+	 * 
+	 * Input: &mut self, ship_no: usize, row: usize, col: usize, orientation: u32
+	 * Output: bool
+	 *
+	 * Changes: Player's GameBoard and Fleet objects
+	 *
+	 * Description: Attempts to place a ship on the board at the given coordinates with the given
+	 *              Orientation. If able to place ship, it writes the ship's letter to the appropriate
+	 *              spaces on the board, changes the ship object to placed, and returns true. If
+	 *              it is unable to place the ship due to the area being out of bounds, or if There
+	 *              is another ship in the way, it does nothing, and returns false.
+	 **********************************************************************************************/
+
+	 fn place_ship(&self, ship_no: usize, row: usize, col: usize, orientation: Orientation) -> bool {
+
+		let mut ship = 
+	 
+		for n in 0..ship.get_length() { //n will be used to scan a section of spaces to make sure a ship can be placed
+		
+			let mut r = row as i32; //Create copies of row and col
+			let mut c = col as i32;
+
+			//Depending on orientation, change r and c to the next square to look at
+			match orientation {
+			
+				Orientation::Up => r -= n as i32,
+				Orientation::Down => r += n as i32,
+				Orientation::Left => c -= n as i32,
+				Orientation::Right => c += n as i32,
+			}
+
+			//If the squre is not inbounds
+			if (r < 0) || (r >= self.board.get_width() as i32) || (c < 0) || (c > self.board.get_height() as i32) {
+			
+				println!("Unable to place ship! {} {} is out of bounds!", r, c);
+				return false; //Return false, without doing anything
+			}
+
+			//If the square is anything other than a space
+			else if self.board.get_space(r as usize, c as usize) != ' ' {
+			
+				println!("Unable to place ship! {} {} is not empty!", r, c);
+				return false; //Return false, without doing anything
+			}
+		}
+
+		//At this point, it is clear to place the ship
+
+		for n in 0..ship.get_length() {
+
+			let mut r = row as i32; //Create copies of row and col
+			let mut c = col as i32;
+
+			//Depending on orientation, change r and c to the next square to look at
+			match orientation {
+			
+				Orientation::Up => r -= n as i32,
+				Orientation::Down => r += n as i32,
+				Orientation::Left => c -= n as i32,
+				Orientation::Right => c += n as i32,
+			}
+
+			//Write the ships letter to the board
+			self.board.write_space(r as usize, c as usize, ship.get_letter());
+		}
+
+		//Set ship placed to true
+		ship.place();
+
+		//Return true
+		return true;
 	 }
   }
 
@@ -467,6 +535,20 @@
 		}
 
 		deployed_count
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: get_ship
+	 * 
+	 * Input: &mut self, n: usize
+	 * Output: &mut Ship
+	 *
+	 * Description: Returns murable reference to a ship
+	 **********************************************************************************************/
+
+	 fn get_ship(&mut self, n: usize) -> &mut Ship {
+	 
+		&mut self.ships[n]
 	 }
   }
 
@@ -712,10 +794,14 @@
 		//Infinite loop, begin game flow. Will continue to start new games until the user exits
 		loop {
 	
-			self.select_difficulty(); //Have the user select difficulty for new game
+			//self.select_difficulty(); //Have the user select difficulty for new game
 
 			//Have the user arrange their ships before the game Begins
 			println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
+
+			let ship_ref = self.player1.fleet.get_ship(4);
+
+			self.player1.place_ship(ship_ref, 4, 4, Orientation::Up);
 
 			self.player1.arrange_fleet(); //Have the user arrange their fleet manually
 		}
