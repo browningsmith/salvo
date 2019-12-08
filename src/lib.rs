@@ -361,8 +361,6 @@
 
 					//Explain to the user that this feature has not been implemented yet
 					println!("Ships placed in random arrangement\n");
-
-					invalid_command = true; //Set invalid_command to true
 				}
 
 				//If the command is 2, and all is 1, ask the user if they are sure they want to clear the board
@@ -567,6 +565,24 @@
 						}
 					}
 				}
+			}
+
+			//If all the ships have been Placed
+			if self.fleet.get_deployed() == self.fleet.size() {
+			
+				//Ask the user if they are done arranging their ships
+				if prompt_yn("Are you finished arraning all of your ships, Admiral?") {
+				
+					arranging = false; //Set arranging to false
+				}
+				else {
+				
+					arranging = true; //Set arranging to true
+				}
+			}
+			else { //If not all ships are placed
+			
+				arranging = true; //set arranging to true
 			}
 		}
 	 }
@@ -1156,6 +1172,8 @@
 			//println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
 			
 			self.player1.arrange_fleet(); //Have the user arrange their fleet manually
+
+			self.player2.randomize_fleet(); //Have the CPU arrange fleet randomly
 		}
 
 	}
