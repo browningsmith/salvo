@@ -38,8 +38,8 @@
  use std::process;
 
  //Global constants
- const BOARD_HEIGHT: u32 = 10;
- const BOARD_WIDTH: u32 = 10;
+ const BOARD_HEIGHT: usize = 10;
+ const BOARD_WIDTH: usize = 10;
 
  /***********************************************************************************************
   * Enum Name: Difficulty
@@ -142,19 +142,20 @@
 		self.grid[0].len() //Return the height of second dimension of board, or number of columns
 	}
 
-	/**********************************************************************************************
+	 /**********************************************************************************************
 	 * Function Name: print_board
 	 * 
-	 * Input: &self, masked: bool
+	 * Input: &self, masked: bool, usize dot_row, usize dot_col
 	 * Output: None
 	 *
 	 * Description: Displays the board to standard output. Behavior for a board larger than 10x10
-	 *              is currently undefined.
+	 *              is currently undefined. Prints a '*' in place of any existing symbol at location
+	 *              dot_row, dot_col, if they are within bounds
 	 *
 	 *              If masked is set to true, hides all ship designations
 	 **********************************************************************************************/
 
-	 pub fn print_board(&self, masked: bool) {
+	 pub fn print_board(&self, masked: bool, dot_row: usize, dot_col: usize) {
 	 
 		println!("      1   2   3   4   5   6   7   8   9   10 "); //Print column numbers
 		println!("  --|---|---|---|---|---|---|---|---|---|---|"); //Print top border
@@ -165,20 +166,28 @@
 
 			for col in 0..self.grid[row].len() { //For each column of the row
 			
-				if masked {
+				//If row and column match dot_row and dot_col
+				if (row == dot_row) && (col == dot_col) {
 				
-					//Print a space, the character at this location, a space, and vertical divider
-					print!(" {} |", match self.grid[row][col] {
-					
-						'~' => '~', //If it is a miss character, okay to print
-						'X' => 'X', //If it is a hit character, okay to print
-						_ => ' ', //anything else hide with a space
-					});
+					print!(" * |"); //Print a space, a '*', a space, and a vertical divider
 				}
 				else {
+
+					if masked {
 				
-					//Print a space, the character at this location, a space, and vertical divider
-					print!(" {} |", self.grid[row][col]);
+						//Print a space, the character at this location, a space, and vertical divider
+						print!(" {} |", match self.grid[row][col] {
+					
+							'~' => '~', //If it is a miss character, okay to print
+							'X' => 'X', //If it is a hit character, okay to print
+							_ => ' ', //anything else hide with a space
+						});
+					}
+					else {
+				
+						//Print a space, the character at this location, a space, and vertical divider
+						print!(" {} |", self.grid[row][col]);
+					}
 				}
 			}
 
@@ -295,35 +304,24 @@
 	 **********************************************************************************************/
 
 	 fn arrange_fleet(&mut self) {
-	 
-		//as long as number of ships deployed does not equal number of ships in fleet:
-		while self.fleet.get_deployed() != self.fleet.size() {
 
-			let mut invalid_command = true; //Create flag for invalid_command. As long as command is invalid, repeat next loop
+		let mut arranging = true; //Set arranging flag to true, as long as this is true, we are continuing to arrange the fleet
+
+		//Print current arrangement stats
+		self.arrangement_stats(11,11);
+	 
+		//as long as we are still arranging
+		while arranging {
+
+			let mut invalid_command = true; //Set invalid_command flag to true. As long as this is true, repeat next loop
 
 			while invalid_command {
 
-				self.board.print_board(false); //Print the board to Start
+				//Reset invalid_command to false
+				invalid_command = false;
 
-				print!("   Patrol Boat      [P]        2 Spaces     Status: "); //Show the Patrol Boat stats
-				if self.fleet.ships[0].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-				print!("   Submarine        [S]        3 Spaces     Status: "); //Show the Sub stats
-				if self.fleet.ships[1].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-				print!("   Destroyer        [D]        3 Spaces     Status: "); //Show the Destroyer stats
-				if self.fleet.ships[2].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-				print!("   Battleship       [B]        4 Spaces     Status: "); //Show the Battleship stats
-				if self.fleet.ships[3].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-				print!("   Aircraft Carrier [C]        5 Spaces     Status: "); //Show the Aircraft Carrier stats
-				if self.fleet.ships[4].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
-				println!("");
-			
-				//Give instructions on how to place ships
-
-				println!("To select a ship to place or move, enter the ship's name.");
-				println!("To remove a ship, type 'remove' or 'clear', followed by the ship's name.");
-				println!("To remove all ships from the board, type 'remove all' or 'clear all'.");
-				println!("You can cancel a 'move' or 'clear' command at any time by typing 'cancel'.");
-				println!("For a random arrangement, type 'random'.\n");
+				//Display arrangement instructions
+				display_arrangement_instructions();
 
 				//Get user input to parse
 				let mut input = get_input_or_exit("What would you like to do, Admiral?");
@@ -352,14 +350,248 @@
 				let ship_selection = find(&input, &["pat", "boa", "sub", "mar", "des", "roy", "bat","air","cra","car","rier"], &[0,0,1,1,2,2,3,4,4,4,4]);
 
 				//If the command is 1, do a random arrangement
+				if command == 1 {
+				
+					//Print current arrangement stats
+					self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+
+					//Explain to the user that this feature has not been implemented yet
+					println!("Apologies, Admiral, but the randomization feature has not yet been installed\n");
+
+					invalid_command = true; //Set invalid_command to true
+				}
 
 				//If the command is 2, and all is 1, ask the user if they are sure they want to clear the board
+				else if (command == 2) && (all == 1) {
+				
+					if prompt_yn("Are you sure you want to remove all your ships? Type 'yes' or 'no'") { //Ask if they are sure
+					
+						//Clear the board
+						self.clear_board();
 
-				//If the command is a double entry, input is invalid, repeat all instructions by continuing loop
+						//Print current arrangement stats
+						self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+
+						//Tell the user that the board has been cleared
+						println!("Board cleared\n");
+					}
+					else { //If they are not sure
+					
+						//Print current arrangement stats, but don't clear the board
+						self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+					}
+				}
+
+				//If the command is 2, and all is not 1, meaning the user wants to remove only one Ship
+				else if command == 2 {
+				
+					//If no valid ship was selected
+					if (ship_selection == -1) || (ship_selection == -2) {
+					
+						//Print current arrangement stats
+						self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+
+						//Explain that the user entered an invalid command
+						println!("Invalid command.\n");
+
+						invalid_command = true; //Set invalid command to true
+					}
+					else {
+					
+						self.remove_ship(ship_selection as usize); //remove the selected ship from the board
+
+						//Print current arrangement stats
+						self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+
+						//Tell the user the ship wasremoved
+						println!("Your {} was removed from the board.\n", self.fleet.ships[ship_selection as usize].get_name());
+					}
+
+				}
+
+				//If the command is a double entry, input is invalid
+				else if command == -2 {
+				
+					//Print current arrangement stats
+					self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+
+					//Explain that the user entered an invalid command
+					println!("Invalid command.\n");
+
+					invalid_command = true; //Set invalid command to true
+				}
 
 				//If no command was entered, assume user wants to move or place a ship
+				else {
+				
+					//If no valid ship name was entered
+					if (ship_selection == -1) || (ship_selection == -2) {
+					
+						//Print current arrangement stats
+						self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+
+						//Explain that the user entered an invalid command
+						println!("Invalid command.\n");
+
+						invalid_command = true; //Set invalid command to true
+					}
+					else {
+
+						//Start trying to place the Ship
+						let mut placing = true;
+
+						while placing {
+					
+							//Ask the user for coordinates to place the ship At
+
+							input = get_input_or_exit(&(format!("Enter the coordinates at which you wish to place your {}", self.fleet.ships[ship_selection as usize].get_name())));
+
+							//If the word cancel is detected, abort placement
+							if find(&input, &["can"], &[1]) == 1 {
+
+								//Print current arrangement stats
+								self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+						
+								println!("Placement cancelled\n");
+								placing = false; //Set placing to false, so we stop trying to place the ship.
+							}
+							else {
+						
+								//Attempt to parse coordinates
+								let (row, col) = find_coordinates(&input);
+
+								//If coordinates valid
+								if row != -1 { //col will also be -1 according to find_coordinates API
+							
+									//If the symbol is not empty, and does not equal this ship's letter
+									if (self.board.get_space(row as usize, col as usize) != ' ') && (self.board.get_space(row as usize, col as usize) != self.fleet.ships[ship_selection as usize].get_letter()) {
+									
+										//Print current arrangement stats
+										self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+
+										println!("Cannot place ship there. There is an obstruction.\n");
+									}
+									else {
+
+										self.remove_ship(ship_selection as usize); //remove the selected ship from the board
+									
+										//Print current arrangement stats, with a dot showing where we are trying to place
+										self.arrangement_stats(row as usize, col as usize);
+
+										//Start trying to orient the Ship
+										let mut orienting = true;
+
+										while orienting {
+										
+											//Ask the user for an orientation
+											input = get_input_or_exit(&(format!("Would you like your {} to be facing 'up', 'down', 'left' or 'right' from that space?\nIt is {} spaces long.", 
+											                                    self.fleet.ships[ship_selection as usize].get_name(),
+																				self.fleet.ships[ship_selection as usize].get_length())));
+
+											//If the word cancel is detected, abort placement
+											if find(&input, &["can"], &[1]) == 1 {
+											
+												//Print current arrangement stats
+												self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+						
+												println!("Placement cancelled\n");
+												orienting = false; //Set orienting to false, so we stop trying to place the ship.
+												placing = false; //Set placing to false, so we stop trying to place the ship.
+											}
+											else {
+											
+												//Attempt to parse an Orientation
+												//-2 is invalid
+												//-1 is Invalid
+												//1 is Up
+												//2 is Down
+												//3 is Left
+												//4 is right
+												let orientation = find(&input, &["up","dow","lef","rig"], &[1,2,3,4]);
+
+												//If no valid orientation was given
+												if orientation < 0 {
+												
+													//Print current arrangement stats
+													self.arrangement_stats(row as usize, col as usize);
+
+													println!("Invalid command.\n");
+												}
+												else {
+												
+													//Set orientation to match the desired direction
+													let orientation = match orientation {
+													
+														1 => Orientation::Up,
+														2 => Orientation::Down,
+														3 => Orientation::Left,
+														4 => Orientation::Right,
+														_ => Orientation::Up, //This should not happen, but compiler needs pleasing
+													};
+
+													//Attempt to place the ship. If it doesn't work have the loop repeat
+													if self.place_ship(ship_selection as usize, row as usize, col as usize, orientation) != true {
+													
+														//Print current arrangement stats
+														self.arrangement_stats(row as usize, col as usize);
+
+														println!("Cannot place ship there. There is an obstruction.\n");
+													}
+													else { //If it worked
+													
+														//Print current arrangement stats
+														self.arrangement_stats(BOARD_WIDTH, BOARD_HEIGHT);
+
+														println!("{} placed successfully at {}{}.\n", self.fleet.ships[ship_selection as usize].get_name(), (row as u8 + 65) as char, col);
+
+														orienting = false; //Set orienting to false, so we stop trying to place the ship.
+														placing = false; //Set placing to false, so we stop trying to place the ship.
+													}
+												}
+											}
+										}
+									}
+								}
+								else { //If coordinates are invalid
+								
+									//Print current arrangement stats
+									self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
+
+									println!("Invalid coordinates.\n");
+								}
+							}
+						}
+					}
+				}
 			}
 		}
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: arrangement_stats
+	 * 
+	 * Input: &self, dot_row: usize, dot_col: usize
+	 * Output: None
+	 *
+	 * Description: Prints the gameboard to show current arrangement, and other arrangement stats.
+	 *              Prints a '*' on the board if dot_row and dot_col are within bounds
+	 **********************************************************************************************/
+
+	 fn arrangement_stats(&self, dot_row: usize, dot_col: usize) {
+	 
+		self.board.print_board(false,dot_row,dot_col); //Print the board, unmasked
+
+		print!("   Patrol Boat      [P]        2 Spaces     Status: "); //Show the Patrol Boat stats
+		if self.fleet.ships[0].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		print!("   Submarine        [S]        3 Spaces     Status: "); //Show the Sub stats
+		if self.fleet.ships[1].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		print!("   Destroyer        [D]        3 Spaces     Status: "); //Show the Destroyer stats
+		if self.fleet.ships[2].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		print!("   Battleship       [B]        4 Spaces     Status: "); //Show the Battleship stats
+		if self.fleet.ships[3].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		print!("   Aircraft Carrier [C]        5 Spaces     Status: "); //Show the Aircraft Carrier stats
+		if self.fleet.ships[4].get_placed() { println!("Placed"); } else { println!("Not Placed"); }
+		println!("");
 	 }
 
 	 /**********************************************************************************************
@@ -396,7 +628,7 @@
 			}
 
 			//If the squre is not inbounds
-			if (r < 0) || (r >= self.board.get_width() as i32) || (c < 0) || (c > self.board.get_height() as i32) {
+			if (r < 0) || (r >= self.board.get_width() as i32) || (c < 0) || (c >= self.board.get_height() as i32) {
 			
 				println!("Unable to place ship! {} {} is out of bounds!", r, c);
 				return false; //Return false, without doing anything
@@ -411,6 +643,8 @@
 		}
 
 		//At this point, it is clear to place the ship
+
+		println!("Apparently it is clear to place the ship here.");
 
 		for n in 0..ship.get_length() {
 
@@ -435,6 +669,29 @@
 
 		//Return true
 		return true;
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: remove_ship
+	 * 
+	 * Input: &mut self, ship_no: usize
+	 * Output: None
+	 *
+	 * Changes: Player's GameBoard and Fleet objects
+	 *
+	 * Description: Removes a ship from the board, if it was placed. Does nothing if ship was Not
+	 *              placed
+	 **********************************************************************************************/
+
+	 fn remove_ship(&mut self, ship_no: usize) {
+	 
+		let ship = &mut self.fleet.ships[ship_no];
+
+		//Remove this ship's symbol from the board
+		self.board.clear_symbol(ship.get_letter());
+
+		//Set ship to not placed
+		ship.remove();
 	 }
 
 	 /**********************************************************************************************
@@ -823,12 +1080,7 @@
 			//Have the user arrange their ships before the game Begins
 			//println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
 			
-			//self.player1.arrange_fleet(); //Have the user arrange their fleet manually
-
-			let mut input = get_input_or_exit("Type in some coordinates");
-			let (row, col) = find_coordinates(&input);
-
-			println!("Coordinates interpreted are {} {}", row, col);
+			self.player1.arrange_fleet(); //Have the user arrange their fleet manually
 		}
 
 	}
@@ -1284,7 +1536,7 @@ pub fn find_coordinates(input: &str) -> (i32, i32) {
 * Description: Displays the instructions of Salvo
 **********************************************************************************************/
 
-fn display_instructions() {
+pub fn display_instructions() {
 
 	println!("Salvo is a classical naval combat simulation.");
 	println!("Each player is allocated their own 10x10 grid of open sea, where they can place their ships.");
@@ -1308,4 +1560,25 @@ fn display_instructions() {
 	println!("A ship is considered SUNK if all of it's spaces are hit by the enemy");
 	println!("The game ends when all of one of the player's ships are sunk. The player with some ships still afloat is declared the winner!");
 	println!("");
+}
+
+/**********************************************************************************************
+* Function Name: display_arrangement_instructions
+* 
+* Input: None
+* Output: None
+*
+* Description: Displays the instructions for how to arrange ships
+**********************************************************************************************/
+
+
+pub fn display_arrangement_instructions() {
+
+	//Give instructions on how to place ships
+
+	println!("To select a ship to place or move, enter the ship's name.");
+	println!("You can cancel a 'move' command at any time by typing 'cancel'.");
+	println!("To remove a ship, type 'remove' or 'clear', followed by the ship's name.");
+	println!("To remove all ships from the board, type 'remove all' or 'clear all'.");
+	println!("For a random arrangement, type 'random'.\n");
 }
