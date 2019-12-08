@@ -436,6 +436,29 @@
 		//Return true
 		return true;
 	 }
+
+	 /**********************************************************************************************
+	 * Function Name: clear_board
+	 * 
+	 * Input: &mut self
+	 * Output: None
+	 *
+	 * Changes: Player's GameBoard and Fleet objects
+	 *
+	 * Description: Replaces all characters on the board with spaces. Changes all ships in the fleet
+	 *              to not placed
+	 **********************************************************************************************/
+
+	 fn clear_board(&mut self) {
+	 
+		self.board = GameBoard::new_board_empty(); //Set this player's game board to a new empty board
+
+		for n in 0..self.fleet.size() { //For each ship in the fleet
+		
+			self.fleet.ships[n as usize].remove(); //Set it to not placed
+		}
+	 }
+
   }
 
  /***********************************************************************************************
@@ -793,7 +816,7 @@
 		println!("\n\n\nGreetings, Admiral! Welcome to the Naval Combat Simulation SALVO.\n"); //Greet the user
 		
 		//Infinite loop, begin game flow. Will continue to start new games until the user exits
-		//loop {
+		loop {
 	
 			//self.select_difficulty(); //Have the user select difficulty for new game
 
@@ -802,13 +825,9 @@
 			
 			//self.player1.arrange_fleet(); //Have the user arrange their fleet manually
 
-			self.player1.place_ship(4,4,4,Orientation::Left);
-			self.player1.place_ship(0,0,9,Orientation::Down);
-			self.player1.board.write_space(9,5,'X');
-			self.player1.board.write_space(9,3,'~');
-			self.player1.board.print_board(false);
-			self.player1.board.print_board(true);
-		//}
+			let mut input = get_input_or_exit("Type in some coordinates");
+			find_coordinates(&input);
+		}
 
 	}
 
@@ -1153,179 +1172,90 @@ pub fn pause_for_enter() {
 
 pub fn find_coordinates(input: &str) {
 
-	let mut row: i32 = 0; //declare row. This will be part of the the return value of the function. 0 indicates invalid input
-	let mut col: i32 = 0; //declare column. This will be part of the return value of the function. 0 indicates invalid input
+	//"ON","TWO","THR","FOU","FIV","SIX","SEV","EIGHT","NIN","TEN"
 
-	while (row == 0) || (col == 0) { //As long as input is invalid
+	//"2","3","4","5","6","7","8","9"
 
-		//reset row and col to 0, invalid inputs
-		row = 0;
-		col = 0;
-
-		let input = get_input_or_exit(input).to_uppercase(); //prompt and get user input, capitalize it, and assign it to input variable
-
-		//First, attempt to parse a column number
-
-		//Start by searching for the name of a number
-		let mut col_option = 1; //Let col_option be 1, this is the column option we are comparing
-		let mut col_name_found = false; //Let col_name_found be false. This flag says we have detected a name rather than numeral
-
-		for col_name in ["ON","TWO","THR","FOU","FIV","SIX","SEV","EIGHT","NIN","TEN"].iter() {  //Iterate over strings of what could be the names of numbers 1 through 10
+	//A B C D E F G H I J
+	//one two three four five six seven eight nine ten
+	//numeral names contain: E F I G H, so check that these exist with spaces on the end
+	//E with a space on the end may actually need to be ignored, since it is the only one of those letters that any number ends with
 		
-			if input.contains(col_name) { //If input string contains the numeral name
+	//"A","B","C","D","E ","F ","G ","H ", "I ", "J"
 
-				col_name_found = true; //Set col_name_found to true
-			
-				//Check to see that no other columns have been found
-				if col == 0 {
-				
-					col = col_option; //Set col to the col_option we just compared
-				}
+	//Attempt to parse a number name. -1 is nothing, -2 means double entry and is invalid
+	let number_name = find(input, &["on","two","thr","fou","fiv","six","sev","eight","nin","ten"], &[1,2,3,4,5,6,7,8,9,10]);
+	let mut number_name_found = false; //Assume a number name was not found
 
-				//Else, since a column was already found, check to see if it was a different column
-				else if col != col_option {
-				
-					col = 0; //Reset col to invalid input
-					break; //break out of the for loop
-				}
-			}
+	if number_name == -2 { //If there was a double entry
+	
+		println!("Invalid coordinates. Multiple column number names were entered");
+		return;
+	}
+	else if number_name != -1 { //If number_name is anything other than -1, that means it found something
+	
+		println!("The name of the number {} was found!", number_name);
+		number_name_found = true;
+	}
 
-			col_option = col_option + 1; //Increment col_option
+	//Attempt to parse a numeral. -1 is nothing, -2 means double entry and is invalid
+	let mut number = find(input, &["1","2","3","4","5","6","7","8","9"], &[1,2,3,4,5,6,7,8,9]);
+
+	if number == -2 { //If there was a double entry
+	
+		println!("Invalid coordinates. Multiple column digits were entered");
+		return;
+	}
+
+	if number == 1 { //If number is 1, go back and look for a 10
+	
+		println!("Since 1 was found, we need to check for 10");
+
+		//Attempt to find a 10. -1 means no
+		number = find(input, &["10"], &[10]);
+
+		if number == -1 { //If a 10 was not found, set number back to 1
+		
+			println!("It is just 1, no 10 was found");
+			number = 1;
 		}
+	}
 
-		//Next, search for numerals
+	//At this point. number_name and number may have both found something, and number_name_found may be true
+
+	//If neither one found anything
+	if (number_name == -1) && (number == -1) {
+	
+		println!("No recognizable numbers");
+		println!("Invalid coordinates");
+		return;
+	}
+
+	//If both number_name and number found something
+	else if (number_name != -1) && (number != -1) {
+	
+		//If number_name and number are the same thing, that is fine
+		if number_name == number {
 		
-		//Check for 1
-		if input.contains("1") {
-
-			//Check to see if it is actually 10
-			if input.contains("10") {
-			
-				//Check to see that no other rows have been found
-				if col == 0 {
-				
-					col = 10; //set col to 10 if no other rows were found
-				}
-
-				//Else, since a row was already found, check to see if it was a different row
-				else if col != 10 {
-				
-					col = 0; //Reset col to invalid input if a different row was already found
-				}
-			}
-			else { //Else, input just contains 1
-			
-				//Check to see that no other rows have been found
-				if col == 0 {
-				
-					col = 1; //set col to 10 if no other rows were found
-				}
-
-				//Else, since a row was already found, check to see if it was a different row
-				else if col != 1 {
-				
-					col = 0; //Reset col to invalid input if a different row was already found
-				}
-			}
+			println!("The column name and the column digits that were entered are the same! {} {}", number_name, number);
+			println!("The column that was interpeted is {}", number_name);
 		}
+		else { //They are not the same, so exit
 
-		//Check for 2 through 9
-		col_option = 2; //Set col_option to 2
-
-		for col_name in ["2","3","4","5","6","7","8","9"].iter() {
-		
-			if input.contains(col_name) { //If input string contains the numeral name
-			
-				//Check to see that no other rows have been found
-				if col == 0 {
-				
-					col = col_option; //Set col to the col_option we just compared
-				}
-
-				//Else, since a row was already found, check to see if it was a different row
-				else if col != col_option {
-				
-					col = 0; //Reset col to invalid input
-					break; //break out of the for loop
-				}
-			}
-
-			col_option = col_option + 1; //Increment col_option
+			println!("The column name and the column digits that were entered are not the same! {} {}", number_name, number);
+			println!("Invalid coordinates");
+			return;
 		}
+	}
+	//Else if number_name is -1
+	else if number_name == -1 {
 
-		if col == 0 { //If column is still invalid at this point, we should go to next iteration and not search for a row
-		
-			println!("Input is invalid\n"); //Let the user know the input is invalid
-			continue;
-		}
-
-		//Second, attempt to parse a row Letter
-
-		//A B C D E F G H I J
-		//one two three four five six seven eight nine ten
-		//numeral names contain: E F I G H, so check that these exist with spaces on the end
-		//E with a space on the end may actually need to be ignored, since it is the only one of those letters that any number ends with
-
-		//Check if a numeral name was found, so we know to be careful about E F G H and I, and make sure they have spaces
-		if col_name_found {
-
-			let mut row_option = 1; //Let row_option be 1, this is the row option we are comparing
-		
-			for row_name in ["A","B","C","D","E ","F ","G ","H ", "I ", "J"].iter() {
-		
-				if input.contains(row_name) { //If input string contains one of the above letters, some with spaces after them
-			
-					//Check to see that no other rows have been found, or that 5 was found, since "E " may be read at the end of a number
-					if (row == 0) || (row == 5) {
-				
-						row = row_option; //Set row to the row_option we just compared
-					}
-
-					//Else, since a row was already found:
-					//If the row was different, and this is not 5 meaning we didn't just find an E
-					else if (row != row_option) && (row_option != 5) {
-				
-						row = 0; //Reset row to invalid input
-						break; //break out of the for loop
-					}
-				}
-
-				row_option = row_option + 1; //Increment row_option
-			}
-		}
-		else { //Column name not found, so we need not be careful about letters
-
-			let mut row_option = 1; //Let row_option be 1, this is the row option we are comparing
-		
-			for row_name in ["A","B","C","D","E","F","G","H","I","J"].iter() {
-		
-				if input.contains(row_name) { //If input string contains the numeral name
-			
-					//Check to see that no other rows have been found
-					if row == 0 {
-				
-						row = row_option; //Set row to the row_option we just compared
-					}
-
-					//Else, since a row was already found, check to see if it was a different row, other than "E", because "E " may have been read off the end of a number
-					else if row != row_option {
-				
-						row = 0; //Reset row to invalid input
-						break; //break out of the for loop
-					}
-				}
-
-				row_option = row_option + 1; //Increment row_option
-			}
-		}
-
-		if row == 0 { //If row is 0 at this point, input was invalid
-
-			println!("Input is invalid\n"); //Let the user know the input is invalid
-		}
-	} //If input was invalid this loop repeats
-
-	println!("Coordinates interpreted: {} {}", row-1, col-1);
+		println!("The column that was interpeted is {}", number);
+	}
+	else {
+	
+		println!("The column that was interpeted is {}", number_name);
+	}
 }
 
 /**********************************************************************************************
