@@ -362,9 +362,9 @@
 	 *              is another ship in the way, it does nothing, and returns false.
 	 **********************************************************************************************/
 
-	 fn place_ship(&self, ship_no: usize, row: usize, col: usize, orientation: Orientation) -> bool {
+	 fn place_ship(&mut self, ship_no: usize, row: usize, col: usize, orientation: Orientation) -> bool {
 
-		let mut ship = 
+		let ship = &mut self.fleet.ships[ship_no];
 	 
 		for n in 0..ship.get_length() { //n will be used to scan a section of spaces to make sure a ship can be placed
 		
@@ -535,20 +535,6 @@
 		}
 
 		deployed_count
-	 }
-
-	 /**********************************************************************************************
-	 * Function Name: get_ship
-	 * 
-	 * Input: &mut self, n: usize
-	 * Output: &mut Ship
-	 *
-	 * Description: Returns murable reference to a ship
-	 **********************************************************************************************/
-
-	 fn get_ship(&mut self, n: usize) -> &mut Ship {
-	 
-		&mut self.ships[n]
 	 }
   }
 
@@ -798,10 +784,6 @@
 
 			//Have the user arrange their ships before the game Begins
 			println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
-
-			let ship_ref = self.player1.fleet.get_ship(4);
-
-			self.player1.place_ship(ship_ref, 4, 4, Orientation::Up);
 
 			self.player1.arrange_fleet(); //Have the user arrange their fleet manually
 		}
@@ -1125,7 +1107,7 @@ pub fn pause_for_enter() {
 }
 
 /**********************************************************************************************
-* Function Name: get_coordinates
+* Function Name: find_coordinates
 * 
 * Input: &str text
 * Output: (u32, u32) coordinates
@@ -1147,7 +1129,7 @@ pub fn pause_for_enter() {
 *              so make sure the game asks the user to confirm after entering coordinates.
 **********************************************************************************************/
 
-pub fn get_coordinates(text: &str) {
+pub fn find_coordinates(input: &str) {
 
 	let mut row: i32 = 0; //declare row. This will be part of the the return value of the function. 0 indicates invalid input
 	let mut col: i32 = 0; //declare column. This will be part of the return value of the function. 0 indicates invalid input
@@ -1158,7 +1140,7 @@ pub fn get_coordinates(text: &str) {
 		row = 0;
 		col = 0;
 
-		let input = get_input_or_exit(text).to_uppercase(); //prompt and get user input, capitalize it, and assign it to input variable
+		let input = get_input_or_exit(input).to_uppercase(); //prompt and get user input, capitalize it, and assign it to input variable
 
 		//First, attempt to parse a column number
 
