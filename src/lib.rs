@@ -36,6 +36,7 @@
  use std::io;
  use std::io::Write;
  use std::process;
+ use rand::Rng;
 
  //Global constants
  const BOARD_HEIGHT: usize = 10;
@@ -351,12 +352,15 @@
 
 				//If the command is 1, do a random arrangement
 				if command == 1 {
+
+					//Randomize the Fleet
+					self.randomize_fleet();
 				
 					//Print current arrangement stats
 					self.arrangement_stats(BOARD_WIDTH,BOARD_HEIGHT);
 
 					//Explain to the user that this feature has not been implemented yet
-					println!("Apologies, Admiral, but the randomization feature has not yet been installed\n");
+					println!("Ships placed in random arrangement\n");
 
 					invalid_command = true; //Set invalid_command to true
 				}
@@ -568,6 +572,79 @@
 	 }
 
 	 /**********************************************************************************************
+	 * Function Name: randomize_fleet
+	 * 
+	 * Input: &mut self
+	 * Output: None
+	 *
+	 * Changes: Player's GameBoard and Fleet objects
+	 *
+	 * Description: Handles the process of the CPU arranging ships randomly. Is also called By
+	 *              arrange_fleet if the user wishes to randomly arrange their own fleet.
+	 *
+	 *              Currently only designed to work with a standard Salvo fleet
+	 **********************************************************************************************/
+
+	 fn randomize_fleet(&mut self) {
+	 
+		self.clear_board(); //Clear the board
+
+		//For each ship in the Salvo standard fleet
+		for ship_no in 0..self.fleet.size() {
+		
+			let mut placing = true; //Set placing to true. As long as this is true, continue generating random placement for this ship
+			while placing {
+
+				let row = rand::thread_rng().gen_range(0,10);
+				let col = rand::thread_rng().gen_range(0,10);
+				let ori_select = rand::thread_rng().gen_range(1,5);
+
+				let orientation = match ori_select {
+			
+					1 => Orientation::Up,
+					2 => Orientation::Down,
+					3 => Orientation::Left,
+					4 => Orientation::Right,
+					_ => Orientation::Up, //This should not happen, but compiler needs pleasing
+				};
+
+				/*println!("Attempting to place {} at {} {} facing {}.",
+						 self.fleet.ships[ship_no as usize].get_name(),
+						 (row as u8 + 65) as char,
+						 col,
+						 match orientation {
+					 
+							Orientation::Up => "up",
+							Orientation::Down => "down",
+							Orientation::Left => "left",
+							Orientation::Right => "right",
+						 }
+				);*/
+
+				//Attempt to place the ship, and set placing to false if it is successfull
+				if self.place_ship(ship_no as usize, row as usize, col as usize, orientation) {
+				
+					/*println!("Placement of {} at {} {} successful.",
+							self.fleet.ships[ship_no as usize].get_name(),
+							(row as u8 + 65) as char,
+							col);*/
+
+					placing = false;
+				}
+				else {
+				
+					/*println!("Placement of {} at {} {} unsuccessful.",
+						 self.fleet.ships[ship_no as usize].get_name(),
+						 (row as u8 + 65) as char,
+						 col);*/
+
+					placing = true;
+				}
+			}
+		}
+	 }
+
+	 /**********************************************************************************************
 	 * Function Name: arrangement_stats
 	 * 
 	 * Input: &self, dot_row: usize, dot_col: usize
@@ -630,21 +707,19 @@
 			//If the squre is not inbounds
 			if (r < 0) || (r >= self.board.get_width() as i32) || (c < 0) || (c >= self.board.get_height() as i32) {
 			
-				println!("Unable to place ship! {} {} is out of bounds!", r, c);
+				//println!("Unable to place ship! {} {} is out of bounds!", r, c);
 				return false; //Return false, without doing anything
 			}
 
 			//If the square is anything other than a space
 			else if self.board.get_space(r as usize, c as usize) != ' ' {
 			
-				println!("Unable to place ship! {} {} is not empty!", r, c);
+				//println!("Unable to place ship! {} {} is not empty!", r, c);
 				return false; //Return false, without doing anything
 			}
 		}
 
 		//At this point, it is clear to place the ship
-
-		println!("Apparently it is clear to place the ship here.");
 
 		for n in 0..ship.get_length() {
 
