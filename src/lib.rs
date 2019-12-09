@@ -807,6 +807,76 @@
 		}
 	 }
 
+	 /**********************************************************************************************
+	 * Function Name: attack
+	 * 
+	 * Input: &mut self, row: usize, col: usize
+	 * Output: (hit: bool, sunk: bool, letter: char)
+	 *
+	 * Changes: Player's GameBoard and Fleet objects
+	 *
+	 * Description: Attacks a space on the player's board. If it is a miss, it sets that space to
+	 *              a '~'. If it is a hit, it sets that space to a 'X'.
+	 *
+	 *              Returns (false, false, ' ') if it is a miss
+	 *              Returns (false, false, '~') if the attacked space was already a miss
+	 *              Returns (false, false, 'X') if the attacked space was already a HIT
+	 *              Returns (true, false, char) if the attack is a hit, and returns the character that was in the space
+	 *              Returns (true, true, char) if the attack is a hit, and if the attacked ship was sunk,
+	 *              and returns the character of the ship that was sunk.
+	 **********************************************************************************************/
+
+	 fn attack(&mut self, row: usize, col: usize) -> (bool, bool, char) {
+	 
+		let space = self.board.get_space(row, col); //Grab a copy of the character on that space
+		
+		//if the space is a miss
+		if space == ' ' {
+		
+			//set that space on the board to the miss symbol '~'
+			self.board.write_space(row, col, '~');
+
+			return (false, false, ' '); //return no hit, no sunk, empty space ' '
+		}
+		else if space == '~' { //If it was already a miss
+		
+			return (false, false, '~'); //return no hit, no sunk, miss symbol '~'
+		}
+		else if space == 'X' { //If it was already a hit
+		
+			return (false, false, 'X'); //return no hit, no sunk, hit symbol 'X'
+		}
+		else { //If it is anything else, then it is a hit!
+
+			//set that space on the board to the hit symbol 'X'
+			self.board.write_space(row, col, 'X');
+		
+			//for each ship in the fleet, 
+			for ship_no in 0..self.fleet.size() {
+			
+				//if the character matches the ship letter
+				if self.fleet.ships[ship_no as usize].get_letter() == space {
+				
+					//Damage the ship
+					let sunk = self.fleet.ships[ship_no as usize].damage();
+
+					//if the damage caused the ship to sink
+					if sunk {
+					
+						return (true, true, space); //return hit, sunk, and the letter
+					}
+					else {
+					
+						return (true, false, space); //return hit, no sunk, and the letter
+					}
+				}
+			}
+
+			//if this statement is reached, the character that was read is not part of the fleet
+			panic!("Error with attack. Letter detected is not in the fleet");
+		}
+	 }
+
   }
 
  /***********************************************************************************************
@@ -1184,17 +1254,21 @@
 
 			self.player2.randomize_fleet(); //Have the CPU arrange fleet randomly
 
+			println!("Beginning combat simulation.\n");
+
 			//Turn based attack flow:
 			for round in 1..(BOARD_HEIGHT*BOARD_WIDTH) { //Number of rounds should never exceed the area of the board
-			
-				println!("ROUND {}\n", round); //Print the round Number
 
 				//Player one attack
 				let mut player1_attacking = true; //Set attacking to true
 
 				while player1_attacking {
+
+					println!("ROUND {}\n", round); //Print the round Number
 				
 					self.player2.board.print_board(false,11,11); //Show the enemy's board
+
+					println!("It is your turn, Admiral\n"); //Tell the user it is their turn
 
 					let mut row = -1; //declare row and col to hold selected coordinates
 					let mut col = -1;
@@ -1262,6 +1336,9 @@
 							}
 						}
 					}
+
+					//Attack the space with the given coordinates
+					let (h,s,l) = self.player2.attack(row as usize, col as usize);
 				}
 			}
 		}
