@@ -258,7 +258,7 @@
  /***********************************************************************************************
   * Struct Name: Player
   *
-  * Attributes: String name, Fleet fleet, GameBoard board
+  * Attributes: String name, Fleet fleet, GameBoard board, update_string: String
   *
   * Description: Contains information about a player
   ***********************************************************************************************/
@@ -268,6 +268,7 @@
 	name: String,
 	fleet: Fleet,
 	board: GameBoard,
+	update_string: String,
   }
 
   impl Player {
@@ -288,6 +289,7 @@
 			name: String::from(name),
 			fleet: Fleet::new_fleet_standard(),
 			board: GameBoard::new_board_empty(),
+			update_string: String::new(),
 		}
 	}
 
@@ -571,7 +573,7 @@
 			if self.fleet.get_deployed() == self.fleet.size() {
 			
 				//Ask the user if they are done arranging their ships
-				if prompt_yn("Are you finished arraning all of your ships, Admiral?") {
+				if prompt_yn("Are you finished arranging all of your ships, Admiral? Type 'yes' or 'no'.") {
 				
 					arranging = false; //Set arranging to false
 				}
@@ -876,6 +878,189 @@
 			panic!("Error with attack. Letter detected is not in the fleet");
 		}
 	 }
+
+	 /**********************************************************************************************
+	 * Function Name: have_user_attack
+	 * 
+	 * Input: &mut self, round: i32
+	 * Output: bool
+	 *
+	 * Changes: board, fleet
+	 *
+	 * Description: Handles the flow of a user attacking this player. Calls the user "Admiral"
+	 *              Returns true if this process ends the game by sinking the fleet
+	 **********************************************************************************************/
+
+	 fn have_user_attack(&mut self, round: usize) -> bool {
+	 
+		//Have the user attack
+		let mut attacking = true; //Set attacking to true
+
+		while attacking {
+
+			println!("ROUND {}\n", round); //Print the round Number
+				
+			self.board.print_board(false,11,11); //Show the enemy board
+
+			print!("{}", &(self.update_string)); //Print the update_string
+
+			self.update_string = String::new(); //reset update string
+
+			println!("It is your turn, Admiral\n"); //Tell the user it is their turn
+
+			let mut row = -1; //declare row and col to hold selected coordinates
+			let mut col = -1;
+
+			let mut getting_coordinates = true; //Set getting_coordinates to true
+
+			while getting_coordinates {
+					
+				//Attempt to parse a row and column
+				let mut input = get_input_or_exit("Select a space to attack by typing in a pair of coordinates.");
+
+				let (r,c) = find_coordinates(&input);
+
+				row = r; //Deconstruct tuple
+				col = c;
+
+				//If row and column are Invalid
+				if row == -1 {
+						
+					self.board.print_board(false,11,11); //Show the enemy's board
+
+					println!("Invalid coordinates.\n"); //Tell the user they entered invalid coordinates
+
+					getting_coordinates = true; //set getting_coordinates to true
+				}
+				else {
+						
+					//Check to see if that spot has already been attacked
+							
+					//If that spot is an 'X'
+					if self.board.get_space(row as usize, col as usize) == 'X' {
+							
+						self.board.print_board(false,11,11); //Show the enemy's board
+
+						println!("You already attacked {}{}. It was a HIT!.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
+
+						getting_coordinates = true; //set getting_coordinates to true
+					}
+					//If that spot is a '~'
+					else if self.board.get_space(row as usize, col as usize) == '~' {
+							
+						self.board.print_board(false,11,11); //Show the enemy's board
+
+						println!("You already attacked {}{}. It was a miss.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
+
+						getting_coordinates = true; //set getting_coordinates to true
+					}
+							
+					//But if it is anything Else
+					else {
+							
+						self.board.print_board(false, row as usize, col as usize); //Show the enemy's board with the dot where we want to attack
+
+						//Ask if the user wants to attack that space, if so set getting_coordinates to false
+						if prompt_yn(&(format!("Are you sure you want to attack {}{}? Type 'yes' or 'no'.",
+												(row as u8 + 65) as char, col+1)
+										)) {
+
+							getting_coordinates = false; //We have the coordinates so we can attack
+						}
+						else {
+								
+							getting_coordinates = true; //Set getting_coordinates to true
+						}
+					}
+				}
+			}
+
+			//Attack the space with the given coordinates, and get status of attack
+			let (hit,sink,letter) = self.attack(row as usize, col as usize);
+
+			if hit != true { //If the attack was a miss
+					
+				println!("ROUND {}\n", round); //Print the round Number
+				
+				self.board.print_board(false,11,11); //Show the enemy's board
+
+				println!("The attack on {}{} was a miss.\n", (row as u8 + 65) as char, col+1);
+
+				println!("It is now the CPU's turn.\n");
+
+				
+				attacking = false; //Set attacking to false to end player1's Turn
+						
+				pause_for_enter();
+			}
+			else { //if the attack was a hit
+					
+				//If the CPU has any ships remaining
+				if self.fleet.ships_remaining() > 0 {
+						
+					//Continue the turn
+
+					
+					attacking = true; //set attacking to true so player can continue their turn
+
+					//format an update string
+					let s = format!("The attack on {}{} was a hit!\n\n", (row as u8 + 65) as char, col+1);
+					self.update_string.push_str(&s);
+
+					//If that hit sunk a ship
+					if sink {
+					
+						//Add on to the update string which ship was sunk
+						for ship_no in 0..self.fleet.size() { //For each ship in the fleet
+						
+							if self.fleet.ships[ship_no as usize].get_letter() == letter { //If the letter matches
+							
+								//Add on to the update string which ship was sunk
+								let s = format!("Good news, Admiral! You sunk the enemy's {}!\n\n", self.fleet.ships[ship_no as usize].get_name());
+								self.update_string.push_str(&s);
+							}
+						}
+					}
+				}
+				else { //GAME OVER
+					
+					
+					attacking = false; //set attacking to false.
+				}
+			}	
+		}
+
+		//Check if there are still ships in the Fleet
+		if self.fleet.ships_remaining() > 0 {
+			
+			return false; //return false, as the game is not over
+		}
+
+		return true; //return true, the game is over
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: have_cpu_attack
+	 * 
+	 * Input: &mut self, round: i32
+	 * Output: bool
+	 *
+	 * Changes: board, fleet
+	 *
+	 * Description: Handles the flow of the cpu attacking this player. Calls the user "Admiral"
+	 *              Returns true if this process ends the game by sinking the fleet
+	 **********************************************************************************************/
+
+	 /*fn have_cpu_attack(&mut self, round: usize) -> bool {
+	 
+		let mut attacking = true; //set attacking to true
+
+		while attacking {
+		
+			//Have the cpu select a space to attack
+			
+		}
+	 }*/
 
   }
 
@@ -1229,7 +1414,7 @@
 	 * Input: &mut self
 	 * Output: None
 	 *
-	 * Changes: self.ai_difficulty
+	 * Changes: self.ai_difficulty, player1, player2
 	 *
 	 * Description: Begins running the game. Greets the user, has the user select difficulty, and then
 	 *              executes the game with the desired difficulty.
@@ -1257,137 +1442,25 @@
 			println!("Beginning combat simulation.\n");
 
 			//As long as either player has ships remaining, do the following loop
-			while (self.player2.fleet.ships_remaining() > 0) && (self.player2.fleet.ships_remaining() > 0) {
+			while (self.player1.fleet.ships_remaining() > 0) && (self.player2.fleet.ships_remaining() > 0) {
 
-				//Turn based attack flow:
-				for round in 1..(BOARD_HEIGHT*BOARD_WIDTH) { //Number of rounds should never exceed the area of the board
+				//Turn based attack flow
+				for round in 1..(BOARD_WIDTH*BOARD_HEIGHT) { //rounds should not exceed board area
 
-					//Player one attack
-					let mut player1_attacking = true; //Set attacking to true
-
-					let mut update = String::new(); //Create an update string, that will tell the user if a ship is hit or sunk
-
-					while player1_attacking {
-
-						println!("ROUND {}\n", round); //Print the round Number
-				
-						self.player2.board.print_board(true,11,11); //Show the enemy's board
-
-						print!("{}", &update); //Print the update
-
-						println!("It is your turn, Admiral\n"); //Tell the user it is their turn
-
-						let mut row = -1; //declare row and col to hold selected coordinates
-						let mut col = -1;
-
-						let mut getting_coordinates = true; //Set getting_coordinates to true
-
-						while getting_coordinates {
+					//Have player1, the user, attack the CPU, player 2
+					if (self.player2.have_user_attack(round)) == true { //if player 1 ends the game
 					
-							//Attempt to parse a row and column
-							let mut input = get_input_or_exit("Select a space to attack by typing in a pair of coordinates.");
-
-							let (r,c) = find_coordinates(&input);
-
-							row = r; //Deconstruct tuple
-							col = c;
-
-							//If row and column are Invalid
-							if row == -1 {
-						
-								self.player2.board.print_board(true,11,11); //Show the enemy's board
-
-								println!("Invalid coordinates.\n"); //Tell the user they entered invalid coordinates
-
-								getting_coordinates = true; //set getting_coordinates to true
-							}
-							else {
-						
-								//Check to see if that spot has already been attacked
-							
-								//If that spot is an 'X'
-								if self.player2.board.get_space(row as usize, col as usize) == 'X' {
-							
-									self.player2.board.print_board(true,11,11); //Show the enemy's board
-
-									println!("You already attacked {} {}. It was a HIT!.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
-
-									getting_coordinates = true; //set getting_coordinates to true
-								}
-								//If that spot is a '~'
-								else if self.player2.board.get_space(row as usize, col as usize) == '~' {
-							
-									self.player2.board.print_board(true,11,11); //Show the enemy's board
-
-									println!("You already attacked {} {}. It was a miss.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
-
-									getting_coordinates = true; //set getting_coordinates to true
-								}
-							
-								//But if it is anything Else
-								else {
-							
-									self.player2.board.print_board(true, row as usize, col as usize); //Show the enemy's board with the dot where we want to attack
-
-									//Ask if the user wants to attack that space, if so set getting_coordinates to false
-									if prompt_yn(&(format!("Are you sure you want to attack {} {}? Type 'yes' or 'no'.",
-														   (row as u8 + 65) as char, col+1)
-												  )) {
-
-										getting_coordinates = false; //We have the coordinates so we can attack
-									}
-									else {
-								
-										getting_coordinates = true; //Set getting_coordinates to true
-									}
-								}
-							}
-						}
-
-						//Attack the space with the given coordinates, and get status of attack
-						let (hit,sink,letter) = self.player2.attack(row as usize, col as usize);
-
-						if hit != true { //If the attack was a miss
+						break; 
+					} //If player1 does not end the game
+					else { 
 					
-							println!("ROUND {}\n", round); //Print the round Number
-				
-							self.player2.board.print_board(true,11,11); //Show the enemy's board
-
-							println!("The attack on {}{} was a miss.\n", (row as u8 + 65) as char, col+1);
-
-							println!("It is now the CPU's turn.\n");
-
-							player1_attacking = false; //Set player1_attacking to false to end player1's Turn
-						
-							pause_for_enter();
-						}
-						else { //if the attack was a hit
-					
-							//If the CPU has any ships remaining
-							if self.player2.fleet.ships_remaining() > 0 {
-						
-								//Continue the game
-
-								player1_attacking = true; //set player_1 attacking to true so player1 can continue their turn
-							}
-							else { //GAME OVER
-						
-								player1_attacking = false; //set player_1 attacking to false, so the game can end
-							}
-						}
-					}
-
-					//Now have player2, the CPU attack
-
-					//First, check that CPU still has ships remaining
-					if self.player2.fleet.ships_remaining() == 0 { //GAME OVER
-					
-						break; //Break out of the game loop
+						if (self.player1.have_user_attack(round)) == true { break; } //If player2 ended the game, break
 					}
 				}
 			}
 		}
 	}
+
 
 	/**********************************************************************************************
 	 * Function Name: select_difficulty
