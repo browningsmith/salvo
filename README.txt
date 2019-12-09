@@ -14,7 +14,7 @@
 #                   Dependencies: See salvo_Cargo.toml
 #
 #                    Description: This program allows the user to play a Battleship-like game against
-#                                 the CPU, or against a human opponent. The game board is displayed
+#                                 the CPU. The game board is displayed
 #                                 in the console using lines and dashes to make the classic 10x10
 #                                 board. Ships are denoted by capital letters. A miss is denoted
 #                                 by the '~' symbol (it looks like a wave, doesn't it!). A hit is
