@@ -50,6 +50,7 @@
   * Description: Variants of AI difficulty
   ***********************************************************************************************/
 
+ #[derive(PartialEq)]
  enum Difficulty {
  
 	Easy,
@@ -269,6 +270,9 @@
 	fleet: Fleet,
 	board: GameBoard,
 	update_string: String,
+	honed: bool,
+	hit_origin_row: usize,
+	hit_origin_col: usize,
   }
 
   impl Player {
@@ -290,6 +294,9 @@
 			fleet: Fleet::new_fleet_standard(),
 			board: GameBoard::new_board_empty(),
 			update_string: String::new(),
+			honed: false,
+			hit_origin_row: 0,
+			hit_origin_col: 0,
 		}
 	}
 
@@ -1066,8 +1073,8 @@
 			let (row, col) = match difficulty {
 			
 				Difficulty::Easy => self.cpu_easy_logic(),
-				Difficulty::Normal => self.cpu_easy_logic(),
-				Difficulty::Hard => self.cpu_hard_logic(),
+				Difficulty::Normal => self.cpu_hard_logic(Difficulty::Normal),
+				Difficulty::Hard => self.cpu_hard_logic(Difficulty::Hard),
 			};
 
 			//Attack the space with the given coordinates, and get status of attack
@@ -1092,6 +1099,21 @@
 				//If the user has any ships remaining
 				if self.fleet.ships_remaining() > 0 {
 						
+					//Set AI tracking data
+					
+					//If we were not currently honed
+					if self.honed != true {
+					
+						println!("Setting CPU to honed\n");
+						self.honed = true;
+
+						//Set hit_origin_row and hit_origin_col
+						self.hit_origin_row = row;
+						self.hit_origin_col = col;
+
+						println!("Focusing attacks around {}{}\n", (self.hit_origin_row as u8 + 65) as char, self.hit_origin_col+1);
+					}
+
 					//Continue the turn
 					attacking = true; //set attacking to true so cpu can continue their turn
 
@@ -1101,6 +1123,10 @@
 					//If that hit sunk a ship
 					if sink {
 					
+						//set AI tracking data
+						self.honed = false; //set honed to false
+						println!("Setting CPU to not honed. Resuming random attacks\n");
+
 						//update the user as to which ship was sunk
 						for ship_no in 0..self.fleet.size() { //For each ship in the fleet
 						
@@ -1174,22 +1200,154 @@
 	 /**********************************************************************************************
 	 * Function Name: cpu_hard_logic
 	 * 
-	 * Input: &mut self,
+	 * Input: &mut self, difficulty: Difficulty
 	 * Output: (row: usize, col: usize)
 	 *
-	 * Description: selects a row and column for the cpu to attack at random, however there is a
-	 *              1 in 3 chance it will attack a ship
+	 * Description: selects a row and column for the cpu to attack at random, but if the last Attack
+	 *              the cpu made was a hit, it hones in and starts scanning for the rest of the ship
+	 *
+	 *              It uses Player variables honed, hit_origin_row, hit_origin_col, and sunk to
+	 *              make decisions about its next move
 	 **********************************************************************************************/
 
-	 fn cpu_hard_logic(&mut self) -> (usize, usize) {
+	 fn cpu_hard_logic(&mut self, difficulty: Difficulty) -> (usize, usize) {
 	 
 		let mut row = 0; //Initialize row and col
 		let mut col = 0;
 
-		//Roll a 1 in 3 chance that cpu will attack a ship
-		let roll = rand::thread_rng().gen_range(1,4);
+		if self.honed { //If we are currently honed in
 
-		if roll != 1 { //If the roll was not 1, we attack at random
+			println!("CPU is honed.\n");
+			
+			//self.hit_origin_row and hit_origin_col are both a hit 'X'
+
+			//Start scanning up
+			row = self.hit_origin_row as i32; //put stored hit origin coordinates into row and col
+			col = self.hit_origin_col as i32;
+			println!("CPU is scanning up from {}{}\n", (row as u8 +65) as char, col+1);
+
+			//as long as row is in bounds
+			while row >= 0 {
+			
+				//if the space is a hit, decrement row
+				if self.board.get_space(row as usize, col as usize) == 'X' {
+				
+					println!("{}{} was a hit, moving up one\n", (row as u8 +65) as char, col+1);
+					//Decrement row
+					row -= 1;
+				}
+				//if the space is a miss, break out of this loop
+				else if self.board.get_space(row as usize, col as usize) == '~' {
+				
+					println!("{}{} was a miss, halting upward scan.\n", (row as u8 +65) as char, col+1);
+					break;
+				}
+				//if the space is anything else, attack it!
+				else {
+				
+					println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
+					return (row as usize, col as usize);
+				}
+			}
+
+			//Start scanning down
+			row = self.hit_origin_row as i32; //put stored hit origin coordinates into row and col
+			col = self.hit_origin_col as i32;
+			println!("CPU is scanning down from {}{}\n", (row as u8 +65) as char, col+1);
+
+			//as long as row is in bounds
+			while row < self.board.get_height() as i32 {
+			
+				//if the space is a hit, increment row
+				if self.board.get_space(row as usize, col as usize) == 'X' {
+				
+					println!("{}{} was a hit, moving down one\n", (row as u8 +65) as char, col+1);
+					//Decrement row
+					row += 1;
+				}
+				//if the space is a miss, break out of this loop
+				else if self.board.get_space(row as usize, col as usize) == '~' {
+				
+					println!("{}{} was a miss, halting downward scan.\n", (row as u8 +65) as char, col+1);
+					break;
+				}
+				//if the space is anything else, attack it!
+				else {
+				
+					println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
+					return (row as usize, col as usize);
+				}
+			}
+
+			//Start scanning left
+			row = self.hit_origin_row as i32; //put stored hit origin coordinates into row and col
+			col = self.hit_origin_col as i32;
+			println!("CPU is scanning left from {}{}\n", (row as u8 +65) as char, col+1);
+
+			//as long as col is in bounds
+			while col >= 0 {
+			
+				//if the space is a hit, increment col
+				if self.board.get_space(row as usize, col as usize) == 'X' {
+				
+					println!("{}{} was a hit, moving left one\n", (row as u8 +65) as char, col+1);
+					//Decrement col
+					col -= 1;
+				}
+				//if the space is a miss, break out of this loop
+				else if self.board.get_space(row as usize, col as usize) == '~' {
+				
+					println!("{}{} was a miss, halting leftward scan.\n", (row as u8 +65) as char, col+1);
+					break;
+				}
+				//if the space is anything else, attack it!
+				else {
+				
+					println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
+					return (row as usize, col as usize);
+				}
+			}
+
+			//Start scanning down
+			row = self.hit_origin_row as i32; //put stored hit origin coordinates into row and col
+			col = self.hit_origin_col as i32;
+			println!("CPU is scanning down from {}{}\n", (row as u8 +65) as char, col+1);
+
+			//as long as col is in bounds
+			while col < self.board.get_width() as i32 {
+			
+				//if the space is a hit, increment col
+				if self.board.get_space(row as usize, col as usize) == 'X' {
+				
+					println!("{}{} was a hit, moving down one\n", (row as u8 +65) as char, col+1);
+					//increment col
+					col += 1;
+				}
+				//if the space is a miss, break out of this loop
+				else if self.board.get_space(row as usize, col as usize) == '~' {
+				
+					println!("{}{} was a miss, halting downward scan.\n", (row as u8 +65) as char, col+1);
+					break;
+				}
+				//if the space is anything else, attack it!
+				else {
+				
+					println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
+					return (row as usize, col as usize);
+				}
+			}
+
+			//All scans completed
+			println!("All scanning completed. Setting back to not honed\n");
+			self.honed = false;
+		}
+
+		println!("CPU is not honed. Resuming normal attacks\n");
+
+		//Roll a 1 in 5 chance that cpu will attack a ship
+		let roll = rand::thread_rng().gen_range(1,6);
+
+		if (roll != 1) || (difficulty == Difficulty::Normal) { //If the roll was not 1, or if difficulty is set to Normal we attack at random
 		
 			return self.cpu_easy_logic(); //Get random coordinates
 		}
@@ -1198,8 +1356,8 @@
 			let mut selecting = true; //Set selecting to true
 			while selecting {
 		
-				row = rand::thread_rng().gen_range(0,10) as usize; //for row and col generate a random number 0-9
-				col = rand::thread_rng().gen_range(0,10) as usize;
+				row = rand::thread_rng().gen_range(0,10); //for row and col generate a random number 0-9
+				col = rand::thread_rng().gen_range(0,10);
 
 				match self.board.get_space(row as usize, col as usize) {
 			
@@ -1209,7 +1367,7 @@
 			}
 		}
 
-		return (row, col);
+		return (row as usize, col as usize);
 	 }
 
   }
@@ -2042,7 +2200,7 @@ pub fn find_coordinates(input: &str) -> (i32, i32) {
 		5 => letter = find(input, &["a","b","c","d","e "," e","f ","g","h","i "," i","j"], &[1,2,3,4,5,5,6,7,8,9,9,10]),
 		6 => letter = find(input, &["a","b","c","d","e","f","g","h","i "," i","j"], &[1,2,3,4,5,6,7,8,9,9,10]),
 		7 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
-		8 => letter = find(input, &["a","b","c","d","e "," e","f","g "," g","h "," h","i "," i","j"], &[1,2,3,4,5,5,6,7,7,8,8,9,9,10]),
+		8 => letter = find(input, &["a","b","c","d","e ","f","g "," g","h "," h","i "," i","j"], &[1,2,3,4,5,6,7,7,8,8,9,9,10]),
 		9 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i "," i","j"], &[1,2,3,4,5,5,6,7,8,9,9,10]),
 		10 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
 		_ => letter = find(input, &["a","b","c","d","e","f","g","h","i","j"], &[1,2,3,4,5,6,7,8,9,10]),
