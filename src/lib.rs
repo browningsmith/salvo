@@ -900,7 +900,7 @@
 
 			println!("ROUND {}\n", round); //Print the round Number
 				
-			self.board.print_board(false,11,11); //Show the enemy board
+			self.board.print_board(true,11,11); //Show the enemy board
 
 			print!("{}", &(self.update_string)); //Print the update_string
 
@@ -926,7 +926,7 @@
 				//If row and column are Invalid
 				if row == -1 {
 						
-					self.board.print_board(false,11,11); //Show the enemy's board
+					self.board.print_board(true,11,11); //Show the enemy's board
 
 					println!("Invalid coordinates.\n"); //Tell the user they entered invalid coordinates
 
@@ -939,7 +939,7 @@
 					//If that spot is an 'X'
 					if self.board.get_space(row as usize, col as usize) == 'X' {
 							
-						self.board.print_board(false,11,11); //Show the enemy's board
+						self.board.print_board(true,11,11); //Show the enemy's board
 
 						println!("You already attacked {}{}. It was a HIT!.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
 
@@ -948,7 +948,7 @@
 					//If that spot is a '~'
 					else if self.board.get_space(row as usize, col as usize) == '~' {
 							
-						self.board.print_board(false,11,11); //Show the enemy's board
+						self.board.print_board(true,11,11); //Show the enemy's board
 
 						println!("You already attacked {}{}. It was a miss.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
 
@@ -958,7 +958,7 @@
 					//But if it is anything Else
 					else {
 							
-						self.board.print_board(false, row as usize, col as usize); //Show the enemy's board with the dot where we want to attack
+						self.board.print_board(true, row as usize, col as usize); //Show the enemy's board with the dot where we want to attack
 
 						//Ask if the user wants to attack that space, if so set getting_coordinates to false
 						if prompt_yn(&(format!("Are you sure you want to attack {}{}? Type 'yes' or 'no'.",
@@ -982,7 +982,7 @@
 					
 				println!("ROUND {}\n", round); //Print the round Number
 				
-				self.board.print_board(false,11,11); //Show the enemy's board
+				self.board.print_board(true,11,11); //Show the enemy's board
 
 				println!("The attack on {}{} was a miss.\n", (row as u8 + 65) as char, col+1);
 
@@ -1051,16 +1051,113 @@
 	 *              Returns true if this process ends the game by sinking the fleet
 	 **********************************************************************************************/
 
-	 /*fn have_cpu_attack(&mut self, round: usize) -> bool {
+	 fn have_cpu_attack(&mut self, round: usize) -> bool {
 	 
 		let mut attacking = true; //set attacking to true
 
 		while attacking {
 		
 			//Have the cpu select a space to attack
-			
+			let (row, col) = self.cpu_easy_logic();
+
+			//Attack the space with the given coordinates, and get status of attack
+			let (hit,sink,letter) = self.attack(row as usize, col as usize);
+
+			println!("ROUND {}\n", round); //Print the round Number
+				
+			self.board.print_board(false,11,11); //Show the user's board
+
+			if hit != true { //If the attack was a miss
+
+				println!("The CPU attacked {}{}, and it was a miss!\n", (row as u8 + 65) as char, col+1);
+
+				println!("It is now your turn, Admiral.\n");
+				
+				attacking = false; //Set attacking to false to end cpu's Turn
+						
+				pause_for_enter();
+			}
+			else { //if the attack was a hit
+					
+				//If the user has any ships remaining
+				if self.fleet.ships_remaining() > 0 {
+						
+					//Continue the turn
+					attacking = true; //set attacking to true so cpu can continue their turn
+
+					//format an update string
+					println!("The CPU attacked {}{} and it was a hit.\n", (row as u8 + 65) as char, col+1);
+
+					//If that hit sunk a ship
+					if sink {
+					
+						//update the user as to which ship was sunk
+						for ship_no in 0..self.fleet.size() { //For each ship in the fleet
+						
+							if self.fleet.ships[ship_no as usize].get_letter() == letter { //If the letter matches
+							
+								//update the user as to which ship was sunk
+								println!("Bad news, Admiral. The enemy sunk your {}.\n", self.fleet.ships[ship_no as usize].get_name());
+							}
+						}
+					}
+					else { //if it did not sink the ship
+					
+						//update the user as to which ship was damaged
+						for ship_no in 0..self.fleet.size() { //For each ship in the fleet
+						
+							if self.fleet.ships[ship_no as usize].get_letter() == letter { //If the letter matches
+							
+								//update the user as to which ship was sunk
+								println!("The enemy has damaged your {}.\n", self.fleet.ships[ship_no as usize].get_name());
+							}
+						}
+					}
+				}
+				else { //GAME OVER
+					
+					
+					attacking = false; //set attacking to false.
+					return true;  //Return true, as the game is over
+				}
+
+				println!("It is still the CPUs turn.\n");
+				pause_for_enter();
+			}
 		}
-	 }*/
+
+		return false; //Return false, the game is not over yet
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: cpu_easy_logic
+	 * 
+	 * Input: &mut self,
+	 * Output: (row: usize, col: usize)
+	 *
+	 * Description: selects a row and column for the cpu to attack at random
+	 **********************************************************************************************/
+
+	 fn cpu_easy_logic(&mut self) -> (usize, usize) {
+	 
+		let mut selecting = true; //Set selecting to true
+		let mut row = 0; //Declare row and column to arbitrary value
+		let mut col = 0;
+
+		while selecting {
+		
+			row = rand::thread_rng().gen_range(0,10) as usize; //for row and col generate a random number 0-9
+			col = rand::thread_rng().gen_range(0,10) as usize;
+
+			match self.board.get_space(row as usize, col as usize) {
+			
+				'X' | '~' => selecting = true, //If the board has already been attacked here, set selecting to true
+				_=> selecting = false, //Otherwise set selecting to false, we are done selecting.
+			}
+		}
+
+		return (row as usize, col as usize); //return the selected row and column
+	 }
 
   }
 
@@ -1393,7 +1490,7 @@
 	 * Input: None
 	 * Output: Salvo
 	 *
-	 * Description: returns a new instance of Salvo. By default, ai_difficulty is set to Normal.
+	 * Description: returns a new instance of Salvo. By default, ai_difficulty is set to Easy.
 	 *              2 Players are created, User and CPU, and each is given a standard unplaced
 	 *              fleet and an empty game board
 	 **********************************************************************************************/
@@ -1402,7 +1499,7 @@
 	
 		Salvo {
 		
-			ai_difficulty: Difficulty::Normal, //Set AI difficulty to Normal
+			ai_difficulty: Difficulty::Easy, //Set AI difficulty to Easy
 			player1: Player::new_player("User"),
 			player2: Player::new_player("CPU"),
 		}
@@ -1454,7 +1551,7 @@
 					} //If player1 does not end the game
 					else { 
 					
-						if (self.player1.have_user_attack(round)) == true { break; } //If player2 ended the game, break
+						if (self.player1.have_cpu_attack(round)) == true { break; } //If player2 ended the game, break
 					}
 				}
 			}
