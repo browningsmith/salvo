@@ -1091,17 +1091,26 @@
 	 * Function Name: damage
 	 * 
 	 * Input: &self
-	 * Output: None
+	 * Output: bool
 	 *
 	 * Description: Decrements ship health by 1. If ships health is already at 0 it does nothing
+	 *              Returns true if this damage caused the ship to sink, or if ship was already
+	 *              sunk.
 	 **********************************************************************************************/
 
-	 fn damage(&mut self) {
+	 fn damage(&mut self) -> bool {
 	 
 		if self.health > 0 { //If health is greater than 0
 		
 			self.health -= 1; //remove one level of health
 		}
+
+		if self.health == 0 {
+		
+			return true;
+		}
+
+		return false;
 	 }
   }
 
@@ -1166,14 +1175,95 @@
 		//Infinite loop, begin game flow. Will continue to start new games until the user exits
 		loop {
 	
-			//self.select_difficulty(); //Have the user select difficulty for new game
+			self.select_difficulty(); //Have the user select difficulty for new game
 
 			//Have the user arrange their ships before the game Begins
-			//println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
+			println!("Admiral, it is time to deploy the fleet! Arrange your ships on the board below:\n");
 			
 			self.player1.arrange_fleet(); //Have the user arrange their fleet manually
 
 			self.player2.randomize_fleet(); //Have the CPU arrange fleet randomly
+
+			//Turn based attack flow:
+			for round in 1..(BOARD_HEIGHT*BOARD_WIDTH) { //Number of rounds should never exceed the area of the board
+			
+				println!("ROUND {}\n", round); //Print the round Number
+
+				//Player one attack
+				let mut player1_attacking = true; //Set attacking to true
+
+				while player1_attacking {
+				
+					self.player2.board.print_board(false,11,11); //Show the enemy's board
+
+					let mut row = -1; //declare row and col to hold selected coordinates
+					let mut col = -1;
+
+					let mut getting_coordinates = true; //Set getting_coordinates to true
+
+					while getting_coordinates {
+					
+						//Attempt to parse a row and column
+						let mut input = get_input_or_exit("Select a space to attack by typing in a pair of coordinates.");
+
+						let (r,c) = find_coordinates(&input);
+
+						row = r; //Deconstruct tuple
+						col = c;
+
+						//If row and column are Invalid
+						if row == -1 {
+						
+							self.player2.board.print_board(false,11,11); //Show the enemy's board
+
+							println!("Invalid coordinates.\n"); //Tell the user they entered invalid coordinates
+
+							getting_coordinates = true; //set getting_coordinates to true
+						}
+						else {
+						
+							//Check to see if that spot has already been attacked
+							
+							//If that spot is an 'X'
+							if self.player1.board.get_space(row as usize, col as usize) == 'X' {
+							
+								self.player2.board.print_board(false,11,11); //Show the enemy's board
+
+								println!("You already attacked {} {}. It was a HIT!.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
+
+								getting_coordinates = true; //set getting_coordinates to true
+							}
+							//If that spot is a '~'
+							else if self.player1.board.get_space(row as usize, col as usize) == '~' {
+							
+								self.player2.board.print_board(false,11,11); //Show the enemy's board
+
+								println!("You already attacked {} {}. It was a miss.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
+
+								getting_coordinates = true; //set getting_coordinates to true
+							}
+							
+							//But if it is anything Else
+							else {
+							
+								self.player2.board.print_board(false, row as usize, col as usize); //Show the enemy's board with the dot where we want to attack
+
+								//Ask if the user wants to attack that space, if so set getting_coordinates to false
+								if prompt_yn(&(format!("Are you sure you want to attack {} {}? Type 'yes' or 'no'.",
+								                       (row as u8 + 65) as char, col+1)
+											  )) {
+
+									getting_coordinates = false; //We have the coordinates so we can attack
+								}
+								else {
+								
+									getting_coordinates = true; //Set getting_coordinates to true
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 
 	}
@@ -1514,6 +1604,8 @@ pub fn pause_for_enter() {
 *
 *              Is a tad bit glitchy on reading user input that contain E F G H or I, since
 *              those letters specifically exist inside some number words.
+*
+*              Returns coordinates as zero based, or returns -1,-1 if none were found
 **********************************************************************************************/
 
 pub fn find_coordinates(input: &str) -> (i32, i32) {
