@@ -3,7 +3,7 @@
  *
  *                      Author: Browning Keith Smith <browningsmith@email.arizona.edu>
  *                        Date: December 2, 2019
- *                Last Updated: December 6, 2019
+ *                Last Updated: December 9, 2019
  *
  *                  Assignment: Project: Learn a New (to You!) Programming Language
  *                      Part 3: Custom Program, Salvo (Battleship-like game)

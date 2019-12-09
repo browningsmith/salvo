@@ -3,7 +3,7 @@
  *
  *                      Author: Browning Keith Smith <browningsmith@email.arizona.edu>
  *                        Date: December 2, 2019
- *                Last Updated: December 6, 2019
+ *                Last Updated: December 9, 2019
  *
  *                  Assignment: Project: Learn a New (to You!) Programming Language
  *                      Part 3: Custom Program, Salvo (Battleship-like game)
@@ -1104,14 +1104,14 @@
 					//If we were not currently honed
 					if self.honed != true {
 					
-						println!("Setting CPU to honed\n");
+						//println!("Setting CPU to honed\n");
 						self.honed = true;
 
 						//Set hit_origin_row and hit_origin_col
 						self.hit_origin_row = row;
 						self.hit_origin_col = col;
 
-						println!("Focusing attacks around {}{}\n", (self.hit_origin_row as u8 + 65) as char, self.hit_origin_col+1);
+						//println!("Focusing attacks around {}{}\n", (self.hit_origin_row as u8 + 65) as char, self.hit_origin_col+1);
 					}
 
 					//Continue the turn
@@ -1125,7 +1125,7 @@
 					
 						//set AI tracking data
 						self.honed = false; //set honed to false
-						println!("Setting CPU to not honed. Resuming random attacks\n");
+						//println!("Setting CPU to not honed. Resuming random attacks\n");
 
 						//update the user as to which ship was sunk
 						for ship_no in 0..self.fleet.size() { //For each ship in the fleet
@@ -1151,8 +1151,6 @@
 					}
 				}
 				else { //GAME OVER
-					
-					self.board.print_board(false,11,11); //Print the final board
 
 					println!("The CPU has destroyed all of your ships. You have lost.\n");
 
@@ -1217,14 +1215,14 @@
 
 		if self.honed { //If we are currently honed in
 
-			println!("CPU is honed.\n");
+			//println!("CPU is honed.\n");
 			
 			//self.hit_origin_row and hit_origin_col are both a hit 'X'
 
 			//Start scanning up
 			row = self.hit_origin_row as i32; //put stored hit origin coordinates into row and col
 			col = self.hit_origin_col as i32;
-			println!("CPU is scanning up from {}{}\n", (row as u8 +65) as char, col+1);
+			//println!("CPU is scanning up from {}{}\n", (row as u8 +65) as char, col+1);
 
 			//as long as row is in bounds
 			while row >= 0 {
@@ -1232,20 +1230,20 @@
 				//if the space is a hit, decrement row
 				if self.board.get_space(row as usize, col as usize) == 'X' {
 				
-					println!("{}{} was a hit, moving up one\n", (row as u8 +65) as char, col+1);
+					//println!("{}{} was a hit, moving up one\n", (row as u8 +65) as char, col+1);
 					//Decrement row
 					row -= 1;
 				}
 				//if the space is a miss, break out of this loop
 				else if self.board.get_space(row as usize, col as usize) == '~' {
 				
-					println!("{}{} was a miss, halting upward scan.\n", (row as u8 +65) as char, col+1);
+					//println!("{}{} was a miss, halting upward scan.\n", (row as u8 +65) as char, col+1);
 					break;
 				}
 				//if the space is anything else, attack it!
 				else {
 				
-					println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
+					//println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
 					return (row as usize, col as usize);
 				}
 			}
@@ -1253,7 +1251,7 @@
 			//Start scanning down
 			row = self.hit_origin_row as i32; //put stored hit origin coordinates into row and col
 			col = self.hit_origin_col as i32;
-			println!("CPU is scanning down from {}{}\n", (row as u8 +65) as char, col+1);
+			//println!("CPU is scanning down from {}{}\n", (row as u8 +65) as char, col+1);
 
 			//as long as row is in bounds
 			while row < self.board.get_height() as i32 {
@@ -1261,20 +1259,20 @@
 				//if the space is a hit, increment row
 				if self.board.get_space(row as usize, col as usize) == 'X' {
 				
-					println!("{}{} was a hit, moving down one\n", (row as u8 +65) as char, col+1);
+					//println!("{}{} was a hit, moving down one\n", (row as u8 +65) as char, col+1);
 					//Decrement row
 					row += 1;
 				}
 				//if the space is a miss, break out of this loop
 				else if self.board.get_space(row as usize, col as usize) == '~' {
 				
-					println!("{}{} was a miss, halting downward scan.\n", (row as u8 +65) as char, col+1);
+					//println!("{}{} was a miss, halting downward scan.\n", (row as u8 +65) as char, col+1);
 					break;
 				}
 				//if the space is anything else, attack it!
 				else {
 				
-					println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
+					//println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
 					return (row as usize, col as usize);
 				}
 			}
@@ -1282,7 +1280,7 @@
 			//Start scanning left
 			row = self.hit_origin_row as i32; //put stored hit origin coordinates into row and col
 			col = self.hit_origin_col as i32;
-			println!("CPU is scanning left from {}{}\n", (row as u8 +65) as char, col+1);
+			//println!("CPU is scanning left from {}{}\n", (row as u8 +65) as char, col+1);
 
 			//as long as col is in bounds
 			while col >= 0 {
@@ -1290,28 +1288,28 @@
 				//if the space is a hit, increment col
 				if self.board.get_space(row as usize, col as usize) == 'X' {
 				
-					println!("{}{} was a hit, moving left one\n", (row as u8 +65) as char, col+1);
+					//println!("{}{} was a hit, moving left one\n", (row as u8 +65) as char, col+1);
 					//Decrement col
 					col -= 1;
 				}
 				//if the space is a miss, break out of this loop
 				else if self.board.get_space(row as usize, col as usize) == '~' {
 				
-					println!("{}{} was a miss, halting leftward scan.\n", (row as u8 +65) as char, col+1);
+					//println!("{}{} was a miss, halting leftward scan.\n", (row as u8 +65) as char, col+1);
 					break;
 				}
 				//if the space is anything else, attack it!
 				else {
 				
-					println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
+					//println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
 					return (row as usize, col as usize);
 				}
 			}
 
-			//Start scanning down
+			//Start scanning right
 			row = self.hit_origin_row as i32; //put stored hit origin coordinates into row and col
 			col = self.hit_origin_col as i32;
-			println!("CPU is scanning down from {}{}\n", (row as u8 +65) as char, col+1);
+			//println!("CPU is scanning right from {}{}\n", (row as u8 +65) as char, col+1);
 
 			//as long as col is in bounds
 			while col < self.board.get_width() as i32 {
@@ -1319,39 +1317,41 @@
 				//if the space is a hit, increment col
 				if self.board.get_space(row as usize, col as usize) == 'X' {
 				
-					println!("{}{} was a hit, moving down one\n", (row as u8 +65) as char, col+1);
+					//println!("{}{} was a hit, moving right one\n", (row as u8 +65) as char, col+1);
 					//increment col
 					col += 1;
 				}
 				//if the space is a miss, break out of this loop
 				else if self.board.get_space(row as usize, col as usize) == '~' {
 				
-					println!("{}{} was a miss, halting downward scan.\n", (row as u8 +65) as char, col+1);
+					//println!("{}{} was a miss, halting rightward scan.\n", (row as u8 +65) as char, col+1);
 					break;
 				}
 				//if the space is anything else, attack it!
 				else {
 				
-					println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
+					//println!("Empty space detected at {}{}, attacking\n", (row as u8 +65) as char, col+1);
 					return (row as usize, col as usize);
 				}
 			}
 
 			//All scans completed
-			println!("All scanning completed. Setting back to not honed\n");
+			//println!("All scanning completed. Setting back to not honed\n");
 			self.honed = false;
 		}
 
-		println!("CPU is not honed. Resuming normal attacks\n");
+		//println!("CPU is not honed. Resuming normal attacks\n");
 
-		//Roll a 1 in 5 chance that cpu will attack a ship
-		let roll = rand::thread_rng().gen_range(1,6);
+		//Roll a 1 in 4 chance that cpu will attack a ship
+		let roll = rand::thread_rng().gen_range(1,5);
 
 		if (roll != 1) || (difficulty == Difficulty::Normal) { //If the roll was not 1, or if difficulty is set to Normal we attack at random
 		
 			return self.cpu_easy_logic(); //Get random coordinates
 		}
 		else { //Else, we attack a ship by totally cheating
+
+			//println!("Difficulty is Hard, and roll was {}. Intentionally attacking ship.\n", roll);
 
 			let mut selecting = true; //Set selecting to true
 			while selecting {
@@ -2099,7 +2099,7 @@ pub fn pause_for_enter() {
 * Input: &str text
 * Output: (u32, u32) coordinates
 *
-* Description: This method interpets a line of text to see if it contains calid Salvo coordinates. It is
+* Description: This method interpets a line of text to see if it contains valid Salvo coordinates. It is
 *              actually quite robust in detecting coordinates of any variation of the letters A-J
 *              for row letters, and numbers 1-10 or one-ten for column numbers.
 *
