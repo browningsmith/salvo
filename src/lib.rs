@@ -1256,93 +1256,137 @@
 
 			println!("Beginning combat simulation.\n");
 
-			//Turn based attack flow:
-			for round in 1..(BOARD_HEIGHT*BOARD_WIDTH) { //Number of rounds should never exceed the area of the board
+			//As long as either player has ships remaining, do the following loop
+			while (self.player2.fleet.ships_remaining() > 0) && (self.player2.fleet.ships_remaining() > 0) {
 
-				//Player one attack
-				let mut player1_attacking = true; //Set attacking to true
+				//Turn based attack flow:
+				for round in 1..(BOARD_HEIGHT*BOARD_WIDTH) { //Number of rounds should never exceed the area of the board
 
-				while player1_attacking {
+					//Player one attack
+					let mut player1_attacking = true; //Set attacking to true
 
-					println!("ROUND {}\n", round); //Print the round Number
+					let mut update = String::new(); //Create an update string, that will tell the user if a ship is hit or sunk
+
+					while player1_attacking {
+
+						println!("ROUND {}\n", round); //Print the round Number
 				
-					self.player2.board.print_board(false,11,11); //Show the enemy's board
+						self.player2.board.print_board(true,11,11); //Show the enemy's board
 
-					println!("It is your turn, Admiral\n"); //Tell the user it is their turn
+						print!("{}", &update); //Print the update
 
-					let mut row = -1; //declare row and col to hold selected coordinates
-					let mut col = -1;
+						println!("It is your turn, Admiral\n"); //Tell the user it is their turn
 
-					let mut getting_coordinates = true; //Set getting_coordinates to true
+						let mut row = -1; //declare row and col to hold selected coordinates
+						let mut col = -1;
 
-					while getting_coordinates {
+						let mut getting_coordinates = true; //Set getting_coordinates to true
+
+						while getting_coordinates {
 					
-						//Attempt to parse a row and column
-						let mut input = get_input_or_exit("Select a space to attack by typing in a pair of coordinates.");
+							//Attempt to parse a row and column
+							let mut input = get_input_or_exit("Select a space to attack by typing in a pair of coordinates.");
 
-						let (r,c) = find_coordinates(&input);
+							let (r,c) = find_coordinates(&input);
 
-						row = r; //Deconstruct tuple
-						col = c;
+							row = r; //Deconstruct tuple
+							col = c;
 
-						//If row and column are Invalid
-						if row == -1 {
+							//If row and column are Invalid
+							if row == -1 {
 						
-							self.player2.board.print_board(false,11,11); //Show the enemy's board
+								self.player2.board.print_board(true,11,11); //Show the enemy's board
 
-							println!("Invalid coordinates.\n"); //Tell the user they entered invalid coordinates
-
-							getting_coordinates = true; //set getting_coordinates to true
-						}
-						else {
-						
-							//Check to see if that spot has already been attacked
-							
-							//If that spot is an 'X'
-							if self.player1.board.get_space(row as usize, col as usize) == 'X' {
-							
-								self.player2.board.print_board(false,11,11); //Show the enemy's board
-
-								println!("You already attacked {} {}. It was a HIT!.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
+								println!("Invalid coordinates.\n"); //Tell the user they entered invalid coordinates
 
 								getting_coordinates = true; //set getting_coordinates to true
 							}
-							//If that spot is a '~'
-							else if self.player1.board.get_space(row as usize, col as usize) == '~' {
-							
-								self.player2.board.print_board(false,11,11); //Show the enemy's board
-
-								println!("You already attacked {} {}. It was a miss.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
-
-								getting_coordinates = true; //set getting_coordinates to true
-							}
-							
-							//But if it is anything Else
 							else {
+						
+								//Check to see if that spot has already been attacked
 							
-								self.player2.board.print_board(false, row as usize, col as usize); //Show the enemy's board with the dot where we want to attack
+								//If that spot is an 'X'
+								if self.player2.board.get_space(row as usize, col as usize) == 'X' {
+							
+									self.player2.board.print_board(true,11,11); //Show the enemy's board
 
-								//Ask if the user wants to attack that space, if so set getting_coordinates to false
-								if prompt_yn(&(format!("Are you sure you want to attack {} {}? Type 'yes' or 'no'.",
-								                       (row as u8 + 65) as char, col+1)
-											  )) {
+									println!("You already attacked {} {}. It was a HIT!.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
 
-									getting_coordinates = false; //We have the coordinates so we can attack
+									getting_coordinates = true; //set getting_coordinates to true
 								}
+								//If that spot is a '~'
+								else if self.player2.board.get_space(row as usize, col as usize) == '~' {
+							
+									self.player2.board.print_board(true,11,11); //Show the enemy's board
+
+									println!("You already attacked {} {}. It was a miss.\n", (row as u8 + 65) as char, col+1); //Tell the user that spot was already attacked
+
+									getting_coordinates = true; //set getting_coordinates to true
+								}
+							
+								//But if it is anything Else
 								else {
+							
+									self.player2.board.print_board(true, row as usize, col as usize); //Show the enemy's board with the dot where we want to attack
+
+									//Ask if the user wants to attack that space, if so set getting_coordinates to false
+									if prompt_yn(&(format!("Are you sure you want to attack {} {}? Type 'yes' or 'no'.",
+														   (row as u8 + 65) as char, col+1)
+												  )) {
+
+										getting_coordinates = false; //We have the coordinates so we can attack
+									}
+									else {
 								
-									getting_coordinates = true; //Set getting_coordinates to true
+										getting_coordinates = true; //Set getting_coordinates to true
+									}
 								}
+							}
+						}
+
+						//Attack the space with the given coordinates, and get status of attack
+						let (hit,sink,letter) = self.player2.attack(row as usize, col as usize);
+
+						if hit != true { //If the attack was a miss
+					
+							println!("ROUND {}\n", round); //Print the round Number
+				
+							self.player2.board.print_board(true,11,11); //Show the enemy's board
+
+							println!("The attack on {}{} was a miss.\n", (row as u8 + 65) as char, col+1);
+
+							println!("It is now the CPU's turn.\n");
+
+							player1_attacking = false; //Set player1_attacking to false to end player1's Turn
+						
+							pause_for_enter();
+						}
+						else { //if the attack was a hit
+					
+							//If the CPU has any ships remaining
+							if self.player2.fleet.ships_remaining() > 0 {
+						
+								//Continue the game
+
+								player1_attacking = true; //set player_1 attacking to true so player1 can continue their turn
+							}
+							else { //GAME OVER
+						
+								player1_attacking = false; //set player_1 attacking to false, so the game can end
 							}
 						}
 					}
 
-					//Attack the space with the given coordinates
-					let (h,s,l) = self.player2.attack(row as usize, col as usize);
+					//Now have player2, the CPU attack
+
+					//First, check that CPU still has ships remaining
+					if self.player2.fleet.ships_remaining() == 0 { //GAME OVER
+					
+						break; //Break out of the game loop
+					}
 				}
 			}
 		}
-
 	}
 
 	/**********************************************************************************************
