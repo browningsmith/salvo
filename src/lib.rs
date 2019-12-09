@@ -102,9 +102,9 @@
 
 		let mut new_grid: Vec<Vec<char>> = Vec::new(); //Create a new two dimensional vector
 
-		for row in 0..BOARD_HEIGHT { //For each row from 0 to BOARD_HEIGHT-1
+		for _row in 0..BOARD_HEIGHT { //For each row from 0 to BOARD_HEIGHT-1
 		
-			let mut new_row: Vec<char> = vec![' '; BOARD_WIDTH as usize];  //Create a new vector of characters, length BOARD_WIDTH, filled with spaces
+			let new_row: Vec<char> = vec![' '; BOARD_WIDTH as usize];  //Create a new vector of characters, length BOARD_WIDTH, filled with spaces
 
 			new_grid.push(new_row); //Push row on to grid
 		}
@@ -159,7 +159,7 @@
 	 pub fn print_board(&self, masked: bool, dot_row: usize, dot_col: usize) {
 	 
 		println!("      1   2   3   4   5   6   7   8   9   10 "); //Print column numbers
-		println!("  --|---|---|---|---|---|---|---|---|---|---|"); //Print top border
+		println!("    |---|---|---|---|---|---|---|---|---|---|"); //Print top border
 
 		for row in 0..self.grid.len() { //For each row in the grid
 		
@@ -194,7 +194,7 @@
 
 			//Print a new line
 			println!("");
-			println!("  --|---|---|---|---|---|---|---|---|---|---|"); //Print a horizontal divider
+			println!("    |---|---|---|---|---|---|---|---|---|---|"); //Print a horizontal divider
 		}
 
 		println!(""); //Print a new line to complete the board
@@ -265,7 +265,7 @@
 
   struct Player {
   
-	name: String,
+	//name: String,
 	fleet: Fleet,
 	board: GameBoard,
 	update_string: String,
@@ -282,11 +282,11 @@
 	 * Description: Creates a new player with given name, standard Fleet and empty GameBoard
 	 **********************************************************************************************/
 
-	fn new_player(name: &str) -> Player {
+	fn new_player() -> Player {
 	
 		Player {
 		
-			name: String::from(name),
+			//name: String::from(name),
 			fleet: Fleet::new_fleet_standard(),
 			board: GameBoard::new_board_empty(),
 			update_string: String::new(),
@@ -916,7 +916,7 @@
 			while getting_coordinates {
 					
 				//Attempt to parse a row and column
-				let mut input = get_input_or_exit("Select a space to attack by typing in a pair of coordinates.");
+				let input = get_input_or_exit("Select a space to attack by typing in a pair of coordinates.");
 
 				let (r,c) = find_coordinates(&input);
 
@@ -1024,6 +1024,11 @@
 				}
 				else { //GAME OVER
 					
+					self.board.print_board(true,11,11); //Show the enemy's final board layout
+
+					println!("All enemy ships have been destroyed.\n");
+
+					println!("Congratulations, Admiral! You are victorious!\n");
 					
 					attacking = false; //set attacking to false.
 				}
@@ -1042,7 +1047,7 @@
 	 /**********************************************************************************************
 	 * Function Name: have_cpu_attack
 	 * 
-	 * Input: &mut self, round: i32
+	 * Input: &mut self, round: usize, difficulty: Difficulty
 	 * Output: bool
 	 *
 	 * Changes: board, fleet
@@ -1051,14 +1056,19 @@
 	 *              Returns true if this process ends the game by sinking the fleet
 	 **********************************************************************************************/
 
-	 fn have_cpu_attack(&mut self, round: usize) -> bool {
+	 fn have_cpu_attack(&mut self, round: usize, difficulty: &Difficulty) -> bool {
 	 
 		let mut attacking = true; //set attacking to true
 
 		while attacking {
 		
-			//Have the cpu select a space to attack
-			let (row, col) = self.cpu_easy_logic();
+			//Have the cpu select a space to attack based on game difficulty
+			let (row, col) = match difficulty {
+			
+				Difficulty::Easy => self.cpu_easy_logic(),
+				Difficulty::Normal => self.cpu_easy_logic(),
+				Difficulty::Hard => self.cpu_hard_logic(),
+			};
 
 			//Attack the space with the given coordinates, and get status of attack
 			let (hit,sink,letter) = self.attack(row as usize, col as usize);
@@ -1116,8 +1126,10 @@
 				}
 				else { //GAME OVER
 					
-					
-					attacking = false; //set attacking to false.
+					self.board.print_board(false,11,11); //Print the final board
+
+					println!("The CPU has destroyed all of your ships. You have lost.\n");
+
 					return true;  //Return true, as the game is over
 				}
 
@@ -1157,6 +1169,47 @@
 		}
 
 		return (row as usize, col as usize); //return the selected row and column
+	 }
+
+	 /**********************************************************************************************
+	 * Function Name: cpu_hard_logic
+	 * 
+	 * Input: &mut self,
+	 * Output: (row: usize, col: usize)
+	 *
+	 * Description: selects a row and column for the cpu to attack at random, however there is a
+	 *              1 in 3 chance it will attack a ship
+	 **********************************************************************************************/
+
+	 fn cpu_hard_logic(&mut self) -> (usize, usize) {
+	 
+		let mut row = 0; //Initialize row and col
+		let mut col = 0;
+
+		//Roll a 1 in 3 chance that cpu will attack a ship
+		let roll = rand::thread_rng().gen_range(1,4);
+
+		if roll != 1 { //If the roll was not 1, we attack at random
+		
+			return self.cpu_easy_logic(); //Get random coordinates
+		}
+		else { //Else, we attack a ship by totally cheating
+
+			let mut selecting = true; //Set selecting to true
+			while selecting {
+		
+				row = rand::thread_rng().gen_range(0,10) as usize; //for row and col generate a random number 0-9
+				col = rand::thread_rng().gen_range(0,10) as usize;
+
+				match self.board.get_space(row as usize, col as usize) {
+			
+					'X' | '~' | ' ' => selecting = true, //If the board has already been attacked here, or is an empty space, set selecting to true
+					_=> selecting = false, //Otherwise set selecting to false, we are done selecting.
+				};
+			}
+		}
+
+		return (row, col);
 	 }
 
   }
@@ -1371,10 +1424,10 @@
 	 * Description: Returns value of ship's current health
 	 **********************************************************************************************/
 
-	fn get_health(&self) -> u32 {
+	/*fn get_health(&self) -> u32 {
 	
 		self.health
-	}
+	}*/
 
 	/**********************************************************************************************
 	 * Function Name: get_sunk
@@ -1500,8 +1553,8 @@
 		Salvo {
 		
 			ai_difficulty: Difficulty::Easy, //Set AI difficulty to Easy
-			player1: Player::new_player("User"),
-			player2: Player::new_player("CPU"),
+			player1: Player::new_player(),
+			player2: Player::new_player(),
 		}
 	}
 
@@ -1551,10 +1604,17 @@
 					} //If player1 does not end the game
 					else { 
 					
-						if (self.player1.have_cpu_attack(round)) == true { break; } //If player2 ended the game, break
+						if (self.player1.have_cpu_attack(round, &self.ai_difficulty)) == true { break; } //If player2 ended the game, break
 					}
 				}
 			}
+
+			println!("GAME OVER\n");
+			pause_for_enter();
+
+			//Reset game objects
+			self.player1 = Player::new_player();
+			self.player2 = Player::new_player();
 		}
 	}
 
@@ -1970,7 +2030,7 @@ pub fn find_coordinates(input: &str) -> (i32, i32) {
 	//ten contains E
 
 	//Next, attempt to parse a row letter
-	let mut letter = -2; //Initialize letter to invalid input
+	let letter; //Initialize letter to invalid input
 
 	//If a number name was found, we need to be careful about some letters, and check that there are spaces before or after them
 
