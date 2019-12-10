@@ -2180,7 +2180,7 @@ pub fn find_coordinates(input: &str) -> (i32, i32) {
 	//A B C D E F G H I J
 	//one two three four five six seven eight nine ten
 	//one contains E
-	//three contains E
+	//three contains E and H
 	//four contains F
 	//five contains E, F, and I
 	//six contains I
@@ -2197,7 +2197,7 @@ pub fn find_coordinates(input: &str) -> (i32, i32) {
 	match number_name {
 		
 		1 => letter = find(input, &["a","b","c","d","e "," e","f","g","h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
-		3 => letter = find(input, &["a","b","c","d","e "," e","f","g","h "," h","i","j"], &[1,2,3,4,5,5,6,7,8,9,10]),
+		3 => letter = find(input, &["a","b","c","d","e "," e","f","g","h "," h","i","j"], &[1,2,3,4,5,5,6,7,8,8,9,10]),
 		4 => letter = find(input, &["a","b","c","d","e","f ","g","h","i","j"], &[1,2,3,4,5,6,7,8,9,10]),
 		5 => letter = find(input, &["a","b","c","d","e "," e","f ","g","h","i "," i","j"], &[1,2,3,4,5,5,6,7,8,9,9,10]),
 		6 => letter = find(input, &["a","b","c","d","e","f","g","h","i "," i","j"], &[1,2,3,4,5,6,7,8,9,9,10]),
